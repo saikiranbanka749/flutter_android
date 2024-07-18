@@ -6,6 +6,7 @@ import 'package:allow_me/Network/NetworkInfo.dart';
 import 'package:allow_me/PresidentHomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'Association.dart';
 import 'CardData.dart';
 
 class SuperAdmin extends StatefulWidget {
@@ -14,15 +15,15 @@ class SuperAdmin extends StatefulWidget {
   SuperAdmin(this.text);
 
   @override
-  State<SuperAdmin> createState() => _SuperAdminState(text);
+  State<SuperAdmin> createState() => SuperAdminState(text);
 }
 
-class _SuperAdminState extends State<SuperAdmin> {
+class SuperAdminState extends State<SuperAdmin> {
   String text;
   List cardsData = [];
   bool isLoading = true;
 
-  _SuperAdminState(this.text);
+  SuperAdminState(this.text);
 
   initState() {
     fetchTodo();
@@ -59,7 +60,7 @@ class _SuperAdminState extends State<SuperAdmin> {
             itemBuilder: (context, index) {
               final item = cardsData[index] as Map;
               // String id = item['tenant_id'];
-              return Cards(item['block_name'], item['name'], item['phone']);
+              return Cards(item['community_name'], item['name'], item['phone']);
             },
           ),
         ),
@@ -69,13 +70,14 @@ class _SuperAdminState extends State<SuperAdmin> {
             },
             backgroundColor: Colors.orangeAccent,
             foregroundColor: Colors.white,
-            label: Text("Add NewBlock")),
+            label: Text("Add Community")),
       ),
     );
   }
 
   Future<void> fetchTodo() async {
-    String url = NetworkInfo.url2 + "/users.php";
+    var data = [];
+    String url = NetworkInfo.url2 + "users.php?role=admin";
     print(url);
     http.Response response = await http.get(Uri.parse(url));
     print(response.body);
@@ -92,10 +94,12 @@ class _SuperAdminState extends State<SuperAdmin> {
     setState(() {
       isLoading = false;
     });
+    data = cardsData;
+    print("the cards data is $cardsData");
   }
 
   Widget Cards(String blockName, String ownerName, String phoneNumber) {
-    print(blockName);
+    print("$blockName $phoneNumber");
     return Card(
         color: Colors.black12,
         child: InkWell(

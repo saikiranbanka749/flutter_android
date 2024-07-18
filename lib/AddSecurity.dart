@@ -85,6 +85,7 @@ class _AddSecurityState extends State<AddSecurity> {
 
   @override
   Widget build(BuildContext context) {
+    block_Controller.text = block_name;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -117,9 +118,7 @@ class _AddSecurityState extends State<AddSecurity> {
                         borderSide: const BorderSide(color: Colors.blueAccent)),
                     label: Text(
                       "Security Guard Name",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Colors.blueAccent, fontSize: 18),
                     ),
                   ),
                 ),
@@ -147,8 +146,7 @@ class _AddSecurityState extends State<AddSecurity> {
                             label: Text(
                               'Age',
                               style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.bold),
+                                  color: Colors.blueAccent, fontSize: 18),
                             ),
                           ),
                         ),
@@ -172,8 +170,7 @@ class _AddSecurityState extends State<AddSecurity> {
                             label: Text(
                               'Block Name',
                               style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.bold),
+                                  color: Colors.blueAccent, fontSize: 18),
                             ),
                           ),
                         ),
@@ -198,9 +195,7 @@ class _AddSecurityState extends State<AddSecurity> {
                         borderSide: const BorderSide(color: Colors.blueAccent)),
                     label: Text(
                       "Address",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Colors.blueAccent, fontSize: 18),
                     ),
                   ),
                 ),
@@ -239,8 +234,7 @@ class _AddSecurityState extends State<AddSecurity> {
                                   ? 'Service starting date'
                                   : ' ${_serviceStartingDate.toString().substring(0, 10)}',
                               style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.bold),
+                                  color: Colors.blueAccent, fontSize: 18),
                             ),
                           ),
                         ),
@@ -273,8 +267,7 @@ class _AddSecurityState extends State<AddSecurity> {
                                   ? 'Service ending date'
                                   : ' ${_serviceEndingDate.toString().substring(0, 10)}',
                               style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontWeight: FontWeight.bold),
+                                  color: Colors.blueAccent, fontSize: 18),
                             ),
                           ),
                         ),
@@ -334,8 +327,7 @@ class _AddSecurityState extends State<AddSecurity> {
                           }),
                       Text('A shift',
                           style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold)),
+                              color: Colors.blueAccent, fontSize: 18)),
                       SizedBox(
                         width: 40,
                       ),
@@ -350,8 +342,7 @@ class _AddSecurityState extends State<AddSecurity> {
                           }),
                       Text('B shift',
                           style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold)),
+                              color: Colors.blueAccent, fontSize: 18)),
                       SizedBox(
                         width: 40,
                       ),
@@ -365,53 +356,64 @@ class _AddSecurityState extends State<AddSecurity> {
                           }),
                       Text('C shift',
                           style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold)),
+                              color: Colors.blueAccent, fontSize: 18)),
                     ],
                   ),
                 ),
                 SizedBox(height: 30),
-                TextField(
-                  controller: phoneNumber_controller,
-                  decoration: InputDecoration(
-                    hintStyle: TextStyle(color: Colors.blueAccent),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: Colors.blueAccent, width: 2.0),
-                      borderRadius: BorderRadius.circular(15.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        maxLength: 10,
+                        controller: phoneNumber_controller,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(color: Colors.blueAccent),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Colors.blueAccent, width: 2.0),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide:
+                                  const BorderSide(color: Colors.blueAccent)),
+                          label: Text(
+                            "Mobile number",
+                            style: TextStyle(
+                                color: Colors.blueAccent, fontSize: 18),
+                          ),
+                        ),
+                      ),
                     ),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: const BorderSide(color: Colors.blueAccent)),
-                    label: Text(
-                      "Mobile number",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
+                    SizedBox(
+                      width: 50,
                     ),
-                  ),
-                ),
-                SizedBox(height: 30),
-                TextField(
-                  controller: alternatePhoneNumber_controller,
-                  decoration: InputDecoration(
-                    hintStyle: TextStyle(color: Colors.blueAccent),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: Colors.blueAccent, width: 2.0),
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: const BorderSide(color: Colors.blueAccent)),
-                    label: Text(
-                      "Alternate mobile number",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
+                    Expanded(
+                      child: TextField(
+                        maxLength: 10,
+                        controller: alternatePhoneNumber_controller,
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(color: Colors.blueAccent),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Colors.blueAccent, width: 2.0),
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide:
+                                  const BorderSide(color: Colors.blueAccent)),
+                          label: Text(
+                            "Alternate mobile number",
+                            style: TextStyle(
+                                color: Colors.blueAccent, fontSize: 18),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                )
               ])),
               SizedBox(
                 height: 30,
@@ -419,7 +421,7 @@ class _AddSecurityState extends State<AddSecurity> {
               ElevatedButton(
                   child: Text(
                     (isEdit ? "Update" : "Add"),
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 18),
                   ),
                   onPressed: isEdit ? updateTodo : AddTodo,
                   style: ElevatedButton.styleFrom(
@@ -467,7 +469,7 @@ class _AddSecurityState extends State<AddSecurity> {
 
   Future<void> AddTodo() async {
     // print("${president_phone}    ${block_name}");
-    String url = NetworkInfo.url2 + "/security_guard.php";
+    String url = NetworkInfo.url2 + "security_guard.php";
     final name = name_Controller.text;
     final age = age_Controller.text;
     final address = address_Controller.text;
@@ -517,13 +519,10 @@ class _AddSecurityState extends State<AddSecurity> {
         "alternate_phone_number": alternate_phone_number
       };
       final uri = Uri.parse(url);
-      var response;
+      print(uri);
+      var response = await http.post(uri, body: jsonEncode(body));
 
-      response = await http.post(uri,
-          body: jsonEncode(body),
-          headers: {'Content-Type': 'application/json'});
-
-      print("${response.body}");
+      print("here data is ${response.body}");
       print(response.statusCode);
       if (response.statusCode == 201) {
         Navigator.push(
@@ -612,7 +611,12 @@ class _AddSecurityState extends State<AddSecurity> {
       if (response.statusCode == 200) {
         SnackBarWidget.scaffoldMessage(
             context, "Updated successfully", "success");
-        Navigator.of(context).pop();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    PresidentHomeScreen("Home", president_phone, block_name)));
+        //  SecurityScreen(this.text, this.president_phone, this.block_name, this.role);
       } else {
         SnackBarWidget.scaffoldMessage(context, "updation failed", "error");
       }

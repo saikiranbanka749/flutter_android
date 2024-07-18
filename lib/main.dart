@@ -1,12 +1,7 @@
+import 'package:allow_me/AddApartment.dart';
 import 'package:flutter/material.dart';
 
-import '';
-import 'AddOwner.dart';
 import 'HomeScreen.dart';
-import 'LoginTest.dart';
-import 'PresidentHomeScreen.dart';
-import 'SecurityGuardScreen.dart';
-import 'Security_guard/SecurityAcceptScreen.dart';
 
 void main() {
   runApp(MaterialApp(

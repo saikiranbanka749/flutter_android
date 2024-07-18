@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:allow_me/Provider/Setting_provider.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +12,8 @@ import 'OwnersHomeScreen.dart';
 import 'PresidentHomeScreen.dart';
 import 'SecurityGuardScreen.dart';
 import 'TenantsHomeScreen.dart';
+
+final _formKey = GlobalKey<FormState>();
 
 class LoginScreen extends StatelessWidget {
   String text;
@@ -26,6 +29,8 @@ class LoginScreen extends StatelessWidget {
         debugShowCheckedModeBanner: false, home: LoginPage(text));
   }
 }
+
+final provider = SettingsProvider();
 
 class LoginPage extends StatefulWidget {
   String text;
@@ -43,7 +48,7 @@ class _myLoginPage extends State<LoginPage> {
 
   _myLoginPage(this.text);
 
-  bool _isObscure = true;
+  bool _isObsecure = false;
   bool isLoading = false;
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -52,11 +57,23 @@ class _myLoginPage extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text(
-              text,
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.blueAccent),
+          title: Text(
+            text,
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.blueAccent,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: IconButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                    } else {}
+                  },
+                  icon: Icon(Icons.check)),
+            )
+          ],
+        ),
         body: Container(
             decoration: new BoxDecoration(
               color: Color(0xfabcdefcc),
@@ -67,93 +84,132 @@ class _myLoginPage extends State<LoginPage> {
                 image: new AssetImage('assets/bg.jpg'),
               ),
             ),
-            child: Center(
-                child: Column(
-              children: <Widget>[
-                SizedBox(height: 400),
-                SizedBox(width: 10),
-                TextField(
-                  controller: phoneController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: Colors.blueAccent, width: 2.0),
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                        borderSide: const BorderSide(color: Colors.blueAccent)),
-                    prefixIcon: Icon(Icons.person, color: Colors.blueAccent),
-                    label: Text(
-                      "User id",
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 40),
-                TextField(
-                  obscureText: true,
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: Colors.blueAccent, width: 2.0),
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                        borderSide: const BorderSide(color: Colors.blueAccent)),
-                    prefixIcon: IconButton(
-                      icon: Icon(_isObscure
-                          ? (Icons.visibility_off)
-                          : Icons.visibility),
-                      onPressed: () {
-                        _isObscure = !_isObscure;
-                      },
-                      color: Colors.blueAccent,
-                    ),
-                    label: Text(
-                      "Password",
-                      style: TextStyle(color: Colors.blueAccent),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 40),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.green),
-                  onPressed: () {
-                    login(context);
-                    setState(() {
-                      isLoading = true;
-                    });
-                    Future.delayed(const Duration(seconds: 20), () {
-                      setState(() {
-                        isLoading = false;
-                      });
-                    });
-                  },
-                  child: isLoading
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              'Loading...',
-                              style: TextStyle(fontSize: 20),
+            child: Form(
+                child: Center(
+                    key: _formKey,
+                    child: Form(
+                        child: Container(
+                      width: 400,
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(height: 250),
+                          TextFormField(
+                            validator: (value) =>
+                                provider.validator(value!, "UserId required"),
+                            style: TextStyle(
+                              color: Colors.black87,
+                              fontFamily: 'Cambay',
+                              fontSize: 22,
                             ),
-                            SizedBox(
-                              width: 10,
+                            controller: phoneController,
+                            maxLength: 10,
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.black87, width: 3.0),
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black87)),
+                              errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.red)),
+                              prefixIcon:
+                                  Icon(Icons.person, color: Colors.black87),
+                              label: Text(
+                                "User id",
+                                style: TextStyle(
+                                    color: Colors.black87,
+                                    //fontWeight: FontWeight.bold,
+                                    fontSize: 24,
+                                    fontFamily: 'Cambay'),
+                              ),
                             ),
-                            CircularProgressIndicator(
-                              color: Colors.white,
+                          ),
+                          SizedBox(height: 40),
+                          TextField(
+                            obscureText: _isObsecure ? false : true,
+                            controller: passwordController,
+                            style: TextStyle(
+                                color: Colors.black87, fontFamily: 'Cambay'),
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.black87, width: 3.0),
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black87)),
+                              prefixIcon: IconButton(
+                                icon: Icon(_isObsecure
+                                    ? (Icons.visibility)
+                                    : Icons.visibility_off),
+                                onPressed: () {
+                                  setState(() {
+                                    _isObsecure = !_isObsecure;
+                                  });
+
+                                  print(_isObsecure);
+                                },
+                                color: Colors.black87,
+                              ),
+                              label: Text(
+                                "Password",
+                                style: TextStyle(
+                                  color: Colors.black87,
+                                  fontSize: 24,
+                                  fontFamily: 'Cambay',
+                                ),
+                              ),
                             ),
-                          ],
-                        )
-                      : const Text('Submit'),
-                )
-              ],
-            ))));
+                          ),
+                          SizedBox(height: 40),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green),
+                            onPressed: () {
+                              login(context);
+                              setState(() {
+                                isLoading = true;
+                              });
+                              Future.delayed(const Duration(seconds: 5), () {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              });
+                            },
+                            child: isLoading
+                                ? Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Text(
+                                        'Loading...',
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                      SizedBox(
+                                        width: 10,
+                                      ),
+                                      CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
+                                    ],
+                                  )
+                                : const Text(
+                                    'Submit',
+                                    style: TextStyle(
+                                        fontFamily: 'Cambay',
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                          )
+                        ],
+                      ),
+                    ))))));
   }
 
   Future<void> login(BuildContext context) async {
@@ -165,66 +221,101 @@ class _myLoginPage extends State<LoginPage> {
         (password != "" && password != null && password.isNotEmpty)) {
       String phoneNumber = phone.toString();
       String passwordString = password.toString();
-      String url = NetworkInfo.url2 + '/login.php';
+      String url = NetworkInfo.url2 + 'login.php';
       print(url);
       final body = {
         "phone": phoneNumber,
         "password": passwordString,
         "role": role
       };
-      final response = await http.post(Uri.parse(url), body: body);
-      print("response ${response.body}");
       try {
         final response = await http.post(Uri.parse(url), body: body);
-        var responseData = json.decode(response.body).replaceAll('"', '');
-        print("here ${response.body}");
-        List<String> myArray = responseData.split(" ");
-        print(myArray);
+        print(response.body);
+        var responseData = response.body.replaceAll('"', '');
+        if (response.body.replaceAll('"', '') == "Error") {
+          SnackBarWidget.scaffoldMessage(
+              context, "Invalid User Id/password", "error");
+        } else {
+          List<String> myArray = responseData.split(" ");
+          print("the response data is $myArray");
 
-        if (myArray[0] == "Success") {
-          print("inside login $text");
-          if (text == "Admin") {
-            print("heer");
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (cotntext) => SuperAdmin("Super admin")));
-            SnackBarWidget.scaffoldMessage(context, "login success", "success");
-          } else if (text == "President Login") {
-            print("hai ${phone} ");
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (cotntext) => PresidentHomeScreen(
-                        "Associatin President", phone, myArray[1])));
-            SnackBarWidget.scaffoldMessage(context, "login success", "success");
-            // talker.info("LOgin successfull");
-          } else if (text == "Owner Login") {
-            print("login success");
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        OwnersHomeScreen("Owner", phone, myArray[2])));
-            SnackBarWidget.scaffoldMessage(context, "login success", "success");
-          } else if (text == "Tenant's Login") {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => TenantsHomeScreen("Tenant", phone)));
-            SnackBarWidget.scaffoldMessage(context, "login success", "success");
-          } else if (text == "SecurityGaurd Login") {
-            print("clicked $text");
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SecurityGuardHomeScreen("Security")));
-            print("reached");
-            SnackBarWidget.scaffoldMessage(context, "login success", "success");
+          if (myArray[0] == "Success") {
+            // List<String> values = ['Alekya', 'plam', 'woods'];
+            String combinedString = myArray.join(' ');
+            print("inside login $text");
+            if (text == "Admin") {
+              print("heer");
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (cotntext) => SuperAdmin("Superadmin")));
+              SnackBarWidget.scaffoldMessage(
+                  context, "login success", "success");
+            } else if (text == "President Login") {
+              myArray.removeAt(0);
+              print(myArray);
+              print(myArray[1]);
+              print("hai ${phone} ");
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (cotntext) => PresidentHomeScreen(
+                          "Association President", phone, combinedString)));
+              SnackBarWidget.scaffoldMessage(
+                  context, "login success", "success");
+              // talker.info("LOgin successfull");
+            } else if (text == "Owner Login") {
+              print(" owner  login success");
+              myArray.removeAt(0);
+              print(myArray);
+              print(myArray[1]);
+              String combinedString = myArray.join(' ');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          OwnerHomeScreen("Owner", phone, combinedString)));
+              SnackBarWidget.scaffoldMessage(
+                  context, "login success", "success");
+            } else if (text == "Tenant's Login") {
+              myArray.removeAt(0);
+              print(myArray);
+              print(myArray[1]);
+              print("Here teantn");
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          TenantsHomeScreen("Tenant", phone)));
+              SnackBarWidget.scaffoldMessage(
+                  context, "login success", "success");
+            } else if (text == "SecurityGaurd Login") {
+              myArray.removeAt(0);
+              print(myArray);
+              print(myArray[1]);
+              print("clicked $combinedString");
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SecurityGuardHomeScreen("Security", combinedString)));
+              print("reached");
+              SnackBarWidget.scaffoldMessage(
+                  context, "login success", "success");
+            } else if (response.statusCode == 404) {
+              SnackBarWidget.scaffoldMessage(
+                  context, "Incorrect Username or password", "error");
+            }
+          }
+          if (myArray[0] == "Error") {
+            print("this is the error");
+            SnackBarWidget.scaffoldMessage(
+                context, "Incorrect Username or password", "error");
           }
         }
       } catch (e) {
-        print("error");
+        print("error ${e}");
         SnackBarWidget.scaffoldMessage(
             context, "Authentication Error, Please contact server", "error");
       }

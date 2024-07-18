@@ -2,35 +2,37 @@ import 'dart:convert';
 import 'package:allow_me/PresidentHomeScreen.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:string_capitalize/string_capitalize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../AddOwner.dart';
 import '../Login.dart';
 import '../Network/NetworkInfo.dart';
 
 class OwnersScreen extends StatefulWidget {
-  String text, president_phone_number, block_name;
+  String text, president_phone_number, community_name, role;
 
-  OwnersScreen(this.text, this.president_phone_number, this.block_name);
+  OwnersScreen(
+      this.text, this.president_phone_number, this.community_name, this.role);
 
   @override
   State<OwnersScreen> createState() {
     //  print("block name in owner screen ${block_name}");
-    return _OwnersScreenState(text, president_phone_number, block_name);
+    return _OwnersScreenState(
+        text, president_phone_number, community_name, role);
   }
 }
 
 class _OwnersScreenState extends State<OwnersScreen> {
-  String text, president_phoneNumber, block_name;
+  String text, president_phoneNumber, community_name, role;
 
-  _OwnersScreenState(this.text, this.president_phoneNumber, this.block_name);
+  _OwnersScreenState(
+      this.text, this.president_phoneNumber, this.community_name, this.role);
 
   @override
   void initState() {
     print(
-        "this is president phone number ${president_phoneNumber}   ${block_name}");
+        "this is president phone number ${president_phoneNumber}   ${community_name}");
     super.initState();
     fetchTodo();
     print('init');
@@ -66,7 +68,7 @@ class _OwnersScreenState extends State<OwnersScreen> {
                         replacement: Center(
                             child: Text(
                           'No owner\'s were added.',
-                          style: Theme.of(context).textTheme.headline3,
+                          style: Theme.of(context).textTheme.headlineLarge,
                         )),
                         child: ListView.builder(
                             itemCount: items.length,
@@ -84,7 +86,7 @@ class _OwnersScreenState extends State<OwnersScreen> {
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 22)),
                                     subtitle: Text(
-                                        "${item['flat_number']}      ${item['block_name']}",
+                                        "Flat No: ${item['flat_number']}      ${item['block_name']}  Block",
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 18)),
                                     trailing:
@@ -109,24 +111,24 @@ class _OwnersScreenState extends State<OwnersScreen> {
                                     }),
                                   ));
                             })))),
-            floatingActionButton: text != "SuperAdmin"
+            floatingActionButton: role != "SuperAdmin"
                 ? (FloatingActionButton.extended(
                     onPressed: () {
-                      NavigateToAddPage(block_name);
+                      NavigateToAddPage(community_name);
                     },
                     label: Text("Add Owner")))
                 : null));
   }
 
   void NavigateToEditPage(Map item) async {
-    print("edit page ${block_name}");
+    print("edit page ${community_name}");
     print(item);
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddOwner(
                 todo: item,
-                block_name: block_name,
+                community_name: community_name,
                 president_phone: president_phoneNumber)));
 
     setState(() {
@@ -141,7 +143,7 @@ class _OwnersScreenState extends State<OwnersScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => AddOwner(
-                block_name: block_name,
+                community_name: community_name,
                 president_phone: president_phoneNumber)));
     setState(() {
       isLoading = true;
@@ -150,24 +152,28 @@ class _OwnersScreenState extends State<OwnersScreen> {
   }
 
   Future<void> deleteById(String id) async {
-    String url = NetworkInfo.url2 + "/owner.php/?id=${id}";
-    print(url);
-    http.Response response = await http.delete(Uri.parse(url));
-    print(response.body);
-    if (response.statusCode == 200) {
-      final filteredItems =
-          items.where((element) => element['_id'] != id).toList();
+    try {
+      String url = NetworkInfo.url2 + "owner.php?id=${id}";
+      print(url);
+      http.Response response = await http.delete(Uri.parse(url));
+      print(response.body);
+      if (response.statusCode == 200) {
+        final filteredItems =
+            items.where((element) => element['_id'] != id).toList();
+        setState(() {
+          items.remove(id);
+          items = filteredItems;
+        });
+        //  initState();
+        SnackBarWidget.scaffoldMessage(
+            context, "Data deleted Succesfully", "success");
+      }
       setState(() {
-        items.remove(id);
-        items = filteredItems;
+        isLoading = false;
       });
-      //  initState();
-      SnackBarWidget.scaffoldMessage(
-          context, "Data deleted Succesfully", "success");
+    } catch (e) {
+      print(e);
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> fetchTodo() async {
@@ -175,14 +181,15 @@ class _OwnersScreenState extends State<OwnersScreen> {
         NetworkInfo.url2 + "/owner.php/?phone=${president_phoneNumber}";
     print(url);
     http.Response response = await http.get(Uri.parse(url));
-    print(response.body);
-    if (response.statusCode == 200) {
+    print("here ${response.body}");
+    if (response.statusCode >= 200 && response.statusCode <= 203) {
       List<Map<String, dynamic>> data =
           json.decode(response.body).cast<Map<String, dynamic>>();
       print(data.length);
       setState(() {
         items = data;
       });
+      print(items);
     } else {}
     setState(() {
       isLoading = false;

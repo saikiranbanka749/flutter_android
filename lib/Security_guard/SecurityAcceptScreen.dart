@@ -90,4 +90,6 @@ class _SecurityAcceptScreenState extends State<SecurityAcceptScreen> {
       ))),
     );
   }
+
+  void timeOut() {}
 }

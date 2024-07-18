@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
+import 'Admin/Profile.dart';
 import 'President/HomeScreen.dart';
 import 'President/OwnerScreen.dart';
 import 'President/ProfileSCreen.dart';
@@ -8,36 +9,40 @@ import 'President/SecurityScreen.dart';
 import 'President/TenantsScreen.dart';
 
 class PresidentHomeScreen extends StatefulWidget {
-  String text, president_phone, block_name;
+  String role, president_phone, block_name;
 
-  PresidentHomeScreen(this.text, this.president_phone, this.block_name);
+  PresidentHomeScreen(this.role, this.president_phone, this.block_name);
 
   @override
   _HomePageState createState() {
     print("its me ${president_phone}");
-    return _HomePageState(text, president_phone, block_name);
+    return _HomePageState(role, president_phone, block_name);
   }
 }
 
 class _HomePageState extends State<PresidentHomeScreen> {
-  String title = "", president_phone_number = "", block_name = "";
+  String role = "", president_phone_number = "", block_name = "";
   var pageOptions = [];
 
-  _HomePageState(String title, String president_phone, String block_name) {
+  _HomePageState(String role, String president_phone, String block_name) {
     this.block_name = block_name;
     print("president scrren $block_name");
-    this.title = title;
+    this.role = role;
     this.president_phone_number = president_phone;
-    print(title);
+    // this.ph_num = ph_num;
+    print(role);
     pageOptions = [
-      if (title != "SuperAdmin") HomeScreen(),
-      OwnersScreen(title == "SuperAdmin" ? "Super Admin" : 'Owner',
-          president_phone, block_name),
-      TenantsScreen(title == "SuperAdmin" ? "Super Admin" : 'Tenant',
-          president_phone, block_name),
-      SecurityScreen(title == "SuperAdmin" ? "Super Admin" : 'Security',
-          president_phone_number, block_name),
-      if (title != "SuperAdmin") {ProfileScreen("Profile", president_phone)}
+      if (role != "SuperAdmin")
+        HomeScreen('title', president_phone, block_name),
+      OwnersScreen(role == "SuperAdmin" ? "Super Admin" : 'Owner',
+          president_phone, block_name, role),
+      TenantsScreen(role == "SuperAdmin" ? "Super Admin" : 'Tenant',
+          president_phone, block_name, role),
+      SecurityScreen(role == "SuperAdmin" ? "Super Admin" : 'Security',
+          president_phone_number, block_name, role),
+      ((role != "SuperAdmin")
+          ? ProfileScreen("Profile", president_phone)
+          : Profile(president_phone))
     ];
   }
 
@@ -46,13 +51,13 @@ class _HomePageState extends State<PresidentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     print(pageOptions);
-    print(title);
+    print(role);
     return Scaffold(
         backgroundColor: Colors.white,
         body: pageOptions[selectedPage],
         bottomNavigationBar: BottomNavigationBar(
           items: [
-            if (title != "SuperAdmin")
+            if (role != "SuperAdmin")
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Owner'),
             BottomNavigationBarItem(
@@ -61,9 +66,8 @@ class _HomePageState extends State<PresidentHomeScreen> {
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.local_police), label: 'Security'),
-            if (title != "SuperAdmin")
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.account_circle), label: 'Profile'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle), label: 'Profile'),
           ],
           selectedItemColor: Colors.green,
           elevation: 5.0,

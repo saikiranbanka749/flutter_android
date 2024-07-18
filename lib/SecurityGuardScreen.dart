@@ -7,25 +7,28 @@ import 'package:flutter/material.dart';
 import 'Network/NetworkInfo.dart';
 
 class SecurityGuardHomeScreen extends StatefulWidget {
-  String text = "";
+  String role = "", community_name = "";
 
-  SecurityGuardHomeScreen(String text) {
-    this.text = text;
+  SecurityGuardHomeScreen(String role, community_name) {
+    this.role = role;
+    this.community_name = community_name;
+    print("thisis $community_name");
   }
 
   @override
   State<SecurityGuardHomeScreen> createState() =>
-      SecurityGuardScreenState(text);
+      SecurityGuardScreenState(role, community_name);
 }
 
 class SecurityGuardScreenState extends State<SecurityGuardHomeScreen> {
-  String text = '';
+  String text = '', community_name = '';
 
-  SecurityGuardScreenState(String text) {
+  SecurityGuardScreenState(String text, String community_name) {
     this.text = text;
+    this.community_name = community_name;
   }
 
-  final Screens = [VisitorsScreen(), ProfileScreen()];
+  final Screens = [VisitorsScreen(""), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +48,7 @@ class SecurityGuardScreenState extends State<SecurityGuardHomeScreen> {
                   ),
                   Tab(
                     icon: Icon(Icons.list_rounded),
-                    text: "Visitors",
+                    text: "Add visitor",
                   ),
                   Tab(
                     icon: Icon(Icons.person),
@@ -55,7 +58,11 @@ class SecurityGuardScreenState extends State<SecurityGuardHomeScreen> {
               ),
               backgroundColor: Colors.blueAccent), // AppBar
           body: TabBarView(
-            children: [HomeScreen(), VisitorsScreen(), ProfileScreen()],
+            children: [
+              HomeScreen(),
+              VisitorsScreen(community_name),
+              ProfileScreen()
+            ],
           ), // TabBarView
         ), // Scaffold
       ),

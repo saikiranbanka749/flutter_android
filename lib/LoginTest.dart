@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'OwnersHomeScreen.dart';
+import 'OwnersHomeScreen1.dart';
 import 'PresidentHomeScreen.dart';
 import 'SecurityGuardScreen.dart';
 import 'TenantsHomeScreen.dart';
@@ -159,7 +160,7 @@ class LoginScreenTest extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => OwnersHomeScreen(
+                    builder: (context) => OwnerHomeScreen1(
                         "owner", phoneNumber, responseData[1])));
           } else if (text == "Tenants Login") {
             Navigator.push(
@@ -170,7 +171,8 @@ class LoginScreenTest extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => SecurityGuardHomeScreen("Security")));
+                    builder: (context) =>
+                        SecurityGuardHomeScreen("Security", "")));
           }
         } else {
           createAlertDialogueBox(context, "Please enter valid userId/password");

@@ -35,6 +35,11 @@ dependencies:
   country_code_picker: ^3.0.0
   cupertino_icons: ^1.0.2
   flutter_otp_text_field: ^1.1.0+2
+  provider: ^6.1.2
+  string_capitalize: ^0.0.10
+  #  shared_preferences_web: ^2.0.0
+  #  flutter_session: ^0.1.1
+
 
   # The following adds the Cupertino Icons font to your application.
 # Use with the CupertinoIcons class for iOS style icons.
@@ -83,9 +88,9 @@ flutter:
     # list giving the asset and other descriptors for the font. For
     # example:
   fonts:
-    - family: EBGaramond
+    - family: Cambay
       fonts:
-        - asset: fonts/EBGaramond-VariableFont_wght.ttf
+        - asset: fonts/Cambay-Regular.ttf
 
 
   #

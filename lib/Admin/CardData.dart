@@ -17,12 +17,13 @@ class _AddNewBlockState extends State<AddNewBlock> {
   TextEditingController president_phone_Controller = TextEditingController();
   TextEditingController alternate_phone_Controller = TextEditingController();
   TextEditingController block_located_controller = TextEditingController();
+  TextEditingController no_of_blocks_controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Add Block'),
+          title: Text('Add Community'),
           leading: IconButton(
             icon: Icon(Icons.keyboard_backspace_rounded),
             onPressed: () {
@@ -70,7 +71,7 @@ class _AddNewBlockState extends State<AddNewBlock> {
                           borderSide:
                               const BorderSide(color: Colors.blueAccent)),
                       label: Text(
-                        "Block Name",
+                        "Community Name",
                         style: TextStyle(
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.bold),
@@ -97,7 +98,7 @@ class _AddNewBlockState extends State<AddNewBlock> {
                           borderSide:
                               const BorderSide(color: Colors.blueAccent)),
                       label: Text(
-                        "Owner Name",
+                        "President Name",
                         style: TextStyle(
                             color: Colors.blueAccent,
                             fontWeight: FontWeight.bold),
@@ -107,79 +108,140 @@ class _AddNewBlockState extends State<AddNewBlock> {
                 SizedBox(
                   height: 40,
                 ),
-                TextField(
-                  controller: president_phone_Controller,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.blueAccent),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: president_phone_Controller,
+                                maxLength: 10,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  hintStyle:
+                                      TextStyle(color: Colors.blueAccent),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.blueAccent, width: 2.0),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.blueAccent)),
+                                  label: Text(
+                                    'President Phone number',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  ),
+                                  prefixIcon: Icon(Icons.phone_android_rounded,
+                                      color: Colors.blueAccent),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            // Adjust spacing as per your design
+                            Expanded(
+                              child: TextField(
+                                controller: alternate_phone_Controller,
+                                maxLength: 10,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  hintStyle:
+                                      TextStyle(color: Colors.blueAccent),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.blueAccent, width: 2.0),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.blueAccent)),
+                                  label: Text(
+                                    'Alternate Phone number',
+                                    style: TextStyle(color: Colors.blueAccent),
+                                  ),
+                                  prefixIcon: Icon(Icons.phone_android_rounded,
+                                      color: Colors.blueAccent),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Owner phone number",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      prefixIcon: Icon(Icons.phone_android_rounded,
-                          color: Colors.blueAccent)),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 40,
                 ),
-                TextField(
-                  controller: alternate_phone_Controller,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.blueAccent),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(10.0),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Container(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: no_of_blocks_controller,
+                              maxLength: 10,
+                              keyboardType: TextInputType.phone,
+                              decoration: InputDecoration(
+                                hintStyle: TextStyle(color: Colors.blueAccent),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Colors.blueAccent, width: 2.0),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderSide: const BorderSide(
+                                        color: Colors.blueAccent)),
+                                label: Text(
+                                  'No of blocks',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                                prefixIcon: Icon(Icons.apartment,
+                                    color: Colors.blueAccent),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 40,
+                          ),
+                          Expanded(
+                            child: TextField(
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 5,
+                              controller: block_located_controller,
+                              decoration: InputDecoration(
+                                  hintStyle:
+                                      TextStyle(color: Colors.blueAccent),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.blueAccent, width: 2.0),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.blueAccent)),
+                                  label: Text(
+                                    "Community Address",
+                                    style: TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  prefixIcon: Icon(Icons.location_on,
+                                      color: Colors.blueAccent)),
+                            ),
+                          ),
+                        ],
                       ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Alternate phone number",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      prefixIcon: Icon(Icons.phone_android_rounded,
-                          color: Colors.blueAccent)),
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                TextField(
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 5,
-                  controller: block_located_controller,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.blueAccent),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Wing Address",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      prefixIcon:
-                          Icon(Icons.location_on, color: Colors.blueAccent)),
+                    )),
+                  ],
                 ),
                 SizedBox(
                   height: 100,
@@ -200,18 +262,22 @@ class _AddNewBlockState extends State<AddNewBlock> {
     final president_phone = president_phone_Controller.text;
     final block_located = block_located_controller.text;
     final alternate_phone = alternate_phone_Controller.text;
-    print("${block_name}    ${president_name}    ${president_phone}");
+    final no_of_blocks = no_of_blocks_controller.text;
+    //  print("${block_name}    ${president_name}    ${president_phone}");
     var body = {
       "block_name": block_name,
       "president_name": president_name,
       "president_phone": president_phone,
       "block_located": block_located,
+      "no_of_blocks": no_of_blocks,
       "alternate_phone": alternate_phone
     };
     try {
       http.Response response = await http
           .post(Uri.parse(NetworkInfo.url2 + '/blocks.php'), body: body);
+      print("${NetworkInfo.url2}blocks.php");
       print(response.body);
+
       print(response.statusCode);
       if (response.statusCode == 201) {
         print("success");

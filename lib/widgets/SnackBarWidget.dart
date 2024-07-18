@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class SnackBarWidget {
   static void scaffoldMessage(BuildContext context, String msg, String status) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            if (msg == "Request Sent") {} // Code to execute.
-          },
-        ),
         backgroundColor: (status == "success") ? Colors.green : Colors.red,
         content: Row(
           children: <Widget>[
@@ -25,12 +21,10 @@ class SnackBarWidget {
             ),
           ],
         ),
-
         duration: const Duration(milliseconds: 3000),
         width: 400.0,
-        // Width of the SnackBar.
         padding: const EdgeInsets.symmetric(
-          horizontal: 8.0, // Inner padding for SnackBar content.
+          horizontal: 8.0,
         ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

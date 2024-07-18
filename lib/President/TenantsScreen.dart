@@ -7,27 +7,30 @@ import '../AddTenant.dart';
 import 'package:http/http.dart' as http;
 
 class TenantsScreen extends StatefulWidget {
-  String text, president_phone_number, block_name;
+  String text, president_phone_number, community_name, role;
 
-  TenantsScreen(this.text, this.president_phone_number, this.block_name) {
-    print("here my block name  is ${block_name}");
+  TenantsScreen(
+      this.text, this.president_phone_number, this.community_name, this.role) {
+    print("here my block name  is ${community_name} and role is ${role}");
   }
 
   @override
   State<TenantsScreen> createState() =>
-      _TenantsScreenState(text, president_phone_number, block_name);
+      _TenantsScreenState(text, president_phone_number, community_name, role);
 }
 
 class _TenantsScreenState extends State<TenantsScreen> {
-  String text, president_phone_number, block_name;
+  String text, president_phone_number, block_name, role;
   bool isLoading = true;
   List items = [];
 
-  _TenantsScreenState(this.text, this.president_phone_number, this.block_name);
+  _TenantsScreenState(
+      this.text, this.president_phone_number, this.block_name, this.role);
 
   @override
   void initState() {
     super.initState();
+    print("$text   $president_phone_number  $block_name  $role");
     fetchTodo();
     print('init');
   }
@@ -56,7 +59,7 @@ class _TenantsScreenState extends State<TenantsScreen> {
                       replacement: Center(
                           child: Text(
                         'No tenants\'s were added.',
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.headlineLarge,
                       )),
                       child: ListView.builder(
                           itemCount: items.length,
@@ -75,7 +78,8 @@ class _TenantsScreenState extends State<TenantsScreen> {
                                           color: Colors.white,
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold)),
-                                  subtitle: Text(item['phone'],
+                                  subtitle: Text(
+                                      "Phone: ${item['phone']}      ${item['block_name']}  Block",
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 18)),
                                   trailing:
@@ -100,11 +104,13 @@ class _TenantsScreenState extends State<TenantsScreen> {
                                   }),
                                 ));
                           })))),
-          floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                NavigateToAddPage(block_name);
-              },
-              label: Text("Add Owner")),
+          floatingActionButton: role != "SuperAdmin"
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    NavigateToAddPage(block_name);
+                  },
+                  label: Text("Add Tenant"))
+              : null,
         ));
     ;
   }
@@ -114,8 +120,9 @@ class _TenantsScreenState extends State<TenantsScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => AddTenant(
+                role: text,
                 todo: item,
-                block_name: block_name,
+                community_name: block_name,
                 president_phone_number: president_phone_number)));
 
     setState(() {
@@ -125,12 +132,14 @@ class _TenantsScreenState extends State<TenantsScreen> {
   }
 
   Future<void> NavigateToAddPage(String block_name) async {
+    print(president_phone_number);
     print("adding data $block_name");
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddTenant(
-                block_name: block_name,
+                role: role,
+                community_name: block_name,
                 president_phone_number: president_phone_number)));
     setState(() {
       isLoading = true;
@@ -139,10 +148,12 @@ class _TenantsScreenState extends State<TenantsScreen> {
   }
 
   Future<void> deleteById(String id) async {
-    String url = "http://192.168.2.142/allowMe/tenant.php/?id=${id}";
+    String url = NetworkInfo.url2 + "tenant.php?id=${id}";
     print("hai  ${url}");
+
     http.Response response = await http.delete(Uri.parse(url));
     print(response.body);
+
     if (response.statusCode == 200) {
       final filteredItems =
           items.where((element) => element['_id'] != id).toList();
@@ -158,21 +169,32 @@ class _TenantsScreenState extends State<TenantsScreen> {
   }
 
   Future<void> fetchTodo() async {
-    String url =
-        NetworkInfo.url2 + "/tenant.php?phone_number=${president_phone_number}";
+    print(president_phone_number);
+
+    if (role == "Home") {
+      role = "AssociationPresident";
+    }
+    role = role.replaceAll(' ', '');
+    //roles = (role == "Home") ? "Association president" : '';
+    String url = NetworkInfo.url2 +
+        "/tenant.php?phone_number=${president_phone_number}&role=${role}";
     print(url);
-    http.Response response = await http.get(Uri.parse(url));
-    print(response.body);
-    if (response.statusCode == 200) {
-      List<Map<String, dynamic>> data =
-          json.decode(response.body).cast<Map<String, dynamic>>();
-      //List data1 = data as List;
+    try {
+      http.Response response = await http.get(Uri.parse(url));
+      print("here ${response.body}");
+      if (response.statusCode == 200) {
+        List<Map<String, dynamic>> data =
+            json.decode(response.body).cast<Map<String, dynamic>>();
+        //List data1 = data as List;
+        setState(() {
+          items = data;
+        });
+      } else {}
       setState(() {
-        items = data;
+        isLoading = false;
       });
-    } else {}
-    setState(() {
-      isLoading = false;
-    });
+    } catch (e) {
+      print(e);
+    }
   }
 }

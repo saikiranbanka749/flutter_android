@@ -28,18 +28,34 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   @override
   void initState() {
     fetchTodo("All", phone_number);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Visitors Screen'),
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (value) => fetchTodo(value, phone_number),
+              itemBuilder: (BuildContext ctx) => [
+                PopupMenuItem(value: 'All', child: Text('All')),
+                PopupMenuItem(value: 'Pending', child: Text('Pending')),
+                PopupMenuItem(value: 'Completed', child: Text('Completed')),
+              ],
+            ),
+          ],
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
                     'Filter',
@@ -49,56 +65,50 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  SizedBox(width: 10),
                   Icon(Icons.filter_alt),
-                  SizedBox(width: 320),
-                  PopupMenuButton<String>(
-                    onSelected: (value) => fetchTodo(value, phone_number),
-                    itemBuilder: (BuildContext ctx) => [
-                      PopupMenuItem(value: 'All', child: Text('All')),
-                      PopupMenuItem(value: 'Pending', child: Text('Pending')),
-                      PopupMenuItem(
-                          value: 'Completed', child: Text('Completed')),
-                    ],
-                  ),
                 ],
               ),
             ),
             SizedBox(height: 10),
             Expanded(
-                child: Visibility(
-                    visible: items.isNotEmpty,
-                    replacement: Center(
-                      child: Text("Data not availble"),
-                    ),
-                    child: // Make sure to specify the type of the map's key and value
-                        ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            separatorBuilder: (context, index) => Divider(
-                                  color: Colors.black87,
-                                ),
-                            itemBuilder: (context, index) {
-                              final item = items[index] as Map<String, dynamic>;
-                              return GestureDetector(
-                                child: ListTile(
-                                  title: Text(item['visitor_name']),
-                                  onTap: () {
-                                    print(item['visitor_name']);
-                                    print(items.runtimeType);
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) =>
-                                    //             Vistors_update_screen(item)));
-                                  },
-                                ),
-                              );
-                            }))),
-          ]),
-        ));
+              child: Visibility(
+                visible: items.isNotEmpty,
+                replacement: Center(
+                  child: Text("Data not available"),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: items.length,
+                  separatorBuilder: (context, index) => Divider(
+                    color: Colors.black87,
+                  ),
+                  itemBuilder: (context, index) {
+                    final item = items[index] as Map<String, dynamic>;
+                    return GestureDetector(
+                      onTap: () {
+                        print(item['visitor_name']);
+                        print(items.runtimeType);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) =>
+                        //         Vistors_update_screen(item),
+                        //   ),
+                        // );
+                      },
+                      child: ListTile(
+                        title: Text(item['visitor_name']),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> fetchTodo(String value, String phone_number) async {
@@ -112,8 +122,6 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
     print(response.body);
     List data = json.decode(response.body);
     if (response.statusCode == 200) {
-      List data = json.decode(response.body);
-      print(data);
       setState(() {
         items = data;
         isLoading = true;

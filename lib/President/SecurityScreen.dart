@@ -6,21 +6,22 @@ import '../AddSecurity.dart';
 import 'package:http/http.dart' as http;
 
 class SecurityScreen extends StatefulWidget {
-  String text, president_phone, block_name;
+  String text, president_phone, block_name, role;
 
-  SecurityScreen(this.text, this.president_phone, this.block_name);
+  SecurityScreen(this.text, this.president_phone, this.block_name, this.role);
 
   @override
   State<SecurityScreen> createState() =>
-      _SecurityScreenState(text, president_phone, block_name);
+      _SecurityScreenState(text, president_phone, block_name, role);
 }
 
 class _SecurityScreenState extends State<SecurityScreen> {
-  String text, president_phone, block_name;
+  String text, president_phone, block_name, role;
   bool isLoading = true;
   List items = [];
 
-  _SecurityScreenState(this.text, this.president_phone, this.block_name);
+  _SecurityScreenState(
+      this.text, this.president_phone, this.block_name, this.role);
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(block_name);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -51,7 +53,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                       replacement: Center(
                           child: Text(
                         'No security person\'s were added.',
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.headlineLarge,
                       )),
                       child: ListView.builder(
                           itemCount: items.length,
@@ -93,11 +95,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                                   }),
                                 ));
                           })))),
-          floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                NavigateToAddPage();
-              },
-              label: Text("Add Security")),
+          floatingActionButton: role != "SuperAdmin"
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    NavigateToAddPage();
+                  },
+                  label: Text("Add Security"))
+              : null,
         ));
     ;
   }
@@ -132,42 +136,46 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   Future<void> deleteById(String id) async {
-    String url = "http://192.168.2.142/allowMe/security_guard.php/?id=${id}";
-    print("hai  ${url}");
-    http.Response response = await http.delete(Uri.parse(url));
-    print(response.body);
-    if (response.statusCode == 200) {
-      final filteredItems =
-          items.where((element) => element['_id'] != id).toList();
+    try {
+      String url = NetworkInfo.url2 + "security_guard.php?id=${id}";
+      print("hai  ${url}");
+      http.Response response = await http.delete(Uri.parse(url));
+      print("click meV ${response.body}");
+      if (response.statusCode == 200) {
+        final filteredItems =
+            items.where((element) => element['_id'] != id).toList();
+        setState(() {
+          items.remove(id);
+          items = filteredItems;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            action: SnackBarAction(
+              label: 'Action',
+              onPressed: () {
+                // Code to execute.
+              },
+            ),
+            content: const Text('Data deleted successfully'),
+            duration: const Duration(milliseconds: 1500),
+            width: 280.0,
+            // Width of the SnackBar.
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0, // Inner padding for SnackBar content.
+            ),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+          ),
+        );
+      }
       setState(() {
-        items.remove(id);
-        items = filteredItems;
+        isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          action: SnackBarAction(
-            label: 'Action',
-            onPressed: () {
-              // Code to execute.
-            },
-          ),
-          content: const Text('Data deleted successfully'),
-          duration: const Duration(milliseconds: 1500),
-          width: 280.0,
-          // Width of the SnackBar.
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8.0, // Inner padding for SnackBar content.
-          ),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
-      );
+    } catch (e) {
+      print(e);
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future<void> fetchTodo() async {
@@ -180,7 +188,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
       List<Map<String, dynamic>> data =
           json.decode(response.body).cast<Map<String, dynamic>>();
       //List data1 = data as List;
-      print(data);
       setState(() {
         items = data;
       });

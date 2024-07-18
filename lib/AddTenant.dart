@@ -1,72 +1,92 @@
 import 'dart:convert';
 
 import 'package:allow_me/Network/NetworkInfo.dart';
+import 'package:allow_me/OwnersHomeScreen.dart';
 import 'package:allow_me/President/TenantsScreen.dart';
 import 'package:allow_me/PresidentHomeScreen.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class AddTenant extends StatefulWidget {
   final Map? todo;
-  String block_name, president_phone_number;
+  String role, president_phone_number, community_name;
 
   AddTenant(
       {super.key,
       this.todo,
-      required this.block_name,
-      required this.president_phone_number});
+      required this.role,
+      required this.president_phone_number,
+      required this.community_name});
 
   @override
-  State<AddTenant> createState() =>
-      _AddTenantState(block_name, president_phone_number);
+  State<AddTenant> createState() => AddTenantState(
+        role,
+        president_phone_number,
+        community_name,
+      );
 }
 
-class _AddTenantState extends State<AddTenant> {
-  String block_name = "", president_phone_number = "";
+class AddTenantState extends State<AddTenant> {
+  final _formKey = GlobalKey<FormState>();
+  String community_name = "", president_phone_number = "", role = '';
   bool isEdit = false;
-  List<String> gender = ['Select Gender', 'Male', 'Female'];
-  var selectedItem = 'Select Gender';
+
+  List<String> apartmentList = [];
+  String _selectedItem = 'Select Apartment/Block';
   TextEditingController name_Controller = TextEditingController();
   TextEditingController age_Controller = TextEditingController();
   TextEditingController phone_Controller = TextEditingController();
   TextEditingController alternate_phone_Controller = TextEditingController();
   TextEditingController owner_phone_Contoller = TextEditingController();
+  TextEditingController flat_number = TextEditingController();
+  bool isTextFieldEnabled = false;
 
-  _AddTenantState(String block_name, String president_phone_number) {
-    this.block_name = block_name;
+  AddTenantState(
+      String role, String president_phone_number, String community_name) {
+    this.role = role;
+    this.community_name = community_name;
     this.president_phone_number = president_phone_number;
-    print(block_name);
+    print(community_name);
   }
 
   @override
   void initState() {
+    print("role: $role,    community_name     $community_name");
     super.initState();
     final todo = widget.todo;
+    if (role != 'AssociationPresident')
+      owner_phone_Contoller.text = president_phone_number;
     print("this is our ${todo}");
     if (widget.todo != null) {
       isEdit = true;
       final name = todo!['name'];
       final age = todo!['age'];
       final phone = todo!['phone'];
+      final block_name = todo!['block_name'];
       final alter_nate_phone = todo!['alternate_phone'];
       final owner_phone_number = todo!['owner_phone_number'];
-      print(todo!['gender']);
-      print(todo!['phone']);
-      //   selectedItem = todo!['gender'];
+      final gender = todo!['gender'];
       name_Controller.text = name;
       age_Controller.text = age;
+      //   _selectedItem = block_name;
+      selectedPosition = int.parse(gender);
       phone_Controller.text = phone;
       alternate_phone_Controller.text = alter_nate_phone;
-      owner_phone_Contoller.text = owner_phone_number;
+      if (role != 'Association President')
+        owner_phone_Contoller.text = owner_phone_number;
+      fetchApartments(block_name);
+    } else {
+      fetchApartments('');
     }
   }
 
+  int selectedPosition = 1;
+
   @override
   Widget build(BuildContext context) {
-    print(block_name);
+    print(community_name);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -82,67 +102,68 @@ class _AddTenantState extends State<AddTenant> {
           padding: EdgeInsets.all(30),
           children: <Widget>[
             Container(
+                child: Form(
+              key: _formKey,
               child: Column(
                 children: [
-                  ListTile(
-                    title: Text(
-                      'Tenant name',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  TextField(
-                    controller: name_Controller,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.blueAccent),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
+                  SizedBox(height: 80),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: name_Controller,
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(color: Colors.blueAccent),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.blueAccent, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.blueAccent)),
+                            label: Text(
+                              "Enter tenat Name",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Enter tenat Name",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  ListTile(
-                    title: Text(
-                      'Tenant age',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  new TextField(
-                    controller: age_Controller,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Enter tenant age",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                      SizedBox(width: 50),
+                      Expanded(
+                        child: TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your name';
+                            }
+                            return null;
+                          },
+                          controller: age_Controller,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.blueAccent, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.blueAccent)),
+                            label: Text(
+                              "Enter tenant age",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                   SizedBox(height: 30),
                   ListTile(
@@ -154,125 +175,184 @@ class _AddTenantState extends State<AddTenant> {
                           fontWeight: FontWeight.bold),
                     ),
                   ),
-                  DropdownButton<String>(
-                    value: selectedItem,
-                    onChanged: (String? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        selectedItem = value!;
-                        print("${selectedItem}  ${value}");
-                      });
-                    },
-                    elevation: 1,
-                    items: gender.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value,
-                            style: TextStyle(
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.bold)),
-                      );
-                    }).toList(),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: RadioListTile(
+                          value: 1,
+                          groupValue: selectedPosition,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedPosition = int.parse(value.toString());
+                            });
+                          },
+                          title: Text(
+                            'Male',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: RadioListTile(
+                          value: 2,
+                          groupValue: selectedPosition,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedPosition = int.parse(value.toString());
+                            });
+                          },
+                          title: Text(
+                            'Female',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: flat_number,
+                                decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Colors.blueAccent, width: 2.0),
+                                    borderRadius: BorderRadius.circular(15.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                      borderSide: const BorderSide(
+                                          color: Colors.blueAccent)),
+                                  label: Text(
+                                    "Flat number",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.blueAccent,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ))
+                    ],
                   ),
                   SizedBox(
                     height: 30,
                   ),
-                  ListTile(
-                    title: Text(
-                      'Tenant phone number',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  new TextField(
-                    controller: phone_Controller,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: new TextField(
+                          controller: phone_Controller,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.blueAccent, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.blueAccent)),
+                            label: Text(
+                              "Phone Number",
+                              style: TextStyle(
+                                  color: Colors.blueAccent, fontSize: 20),
+                            ),
+                          ),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Phone Number",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
+                      SizedBox(width: 30),
+                      Expanded(
+                        child: new TextField(
+                          controller: alternate_phone_Controller,
+                          maxLength: 10,
+                          decoration: InputDecoration(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.blueAccent, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                                borderSide:
+                                    const BorderSide(color: Colors.blueAccent)),
+                            label: Text(
+                              "Alternate Phone Numeber",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Row(children: [
+                    Expanded(
+                        child: new TextField(
+                      controller: owner_phone_Contoller,
+                      maxLength: 10,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: Colors.blueAccent, width: 2.0),
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide:
+                                const BorderSide(color: Colors.blueAccent)),
+                        label: Text(
+                          "Owner Phone Number",
+                          style:
+                              TextStyle(color: Colors.blueAccent, fontSize: 20),
+                        ),
+                      ),
+                    )),
+                    SizedBox(
+                      width: 40,
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border:
+                              Border.all(color: Colors.blueAccent, width: 2.0),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: _selectedItem,
+                          underline: SizedBox(),
+                          items: apartmentList.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedItem = newValue!;
+                              print(_selectedItem);
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 30),
-                  ListTile(
-                    title: Text(
-                      'Altenate phone number',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  new TextField(
-                    controller: alternate_phone_Controller,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Alternate Phone Numeber",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  ListTile(
-                    title: Text(
-                      'Owner phone',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  new TextField(
-                    controller: owner_phone_Contoller,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                            color: Colors.blueAccent, width: 2.0),
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide:
-                              const BorderSide(color: Colors.blueAccent)),
-                      label: Text(
-                        "Owner Phone Number",
-                        style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
+                  ]),
                   SizedBox(height: 60),
                   ElevatedButton(
                       onPressed: isEdit ? updateTenant : addTenant,
                       child: Text(isEdit ? 'Update' : 'Add Tenant')),
                 ],
               ),
-            )
+            ))
           ],
         ),
       ),
@@ -280,14 +360,16 @@ class _AddTenantState extends State<AddTenant> {
   }
 
   Future<void> addTenant() async {
-    print("addd tenant ${block_name}");
+    print(role);
+    print("addd tenant ${community_name}");
     final name = name_Controller.text;
+    final flat_num = flat_number.text;
     final age = age_Controller.text;
-    final gender = selectedItem.toString();
+    final int gender = selectedPosition;
     final phone = phone_Controller.text;
     final alternate_phone = alternate_phone_Controller.text;
     final owner_phone = owner_phone_Contoller.text;
-
+    print(role);
     final body = {
       "name": name,
       "age": age,
@@ -295,58 +377,72 @@ class _AddTenantState extends State<AddTenant> {
       "phone": phone,
       "alternate_phone": alternate_phone,
       "owner_phone": owner_phone,
-      "block_name": block_name,
+      "community_name": community_name,
+      "block_name": _selectedItem.toString(),
       "role": "tenant",
+      "flat_number": flat_num,
       // "flat_number":flat_number
     };
     if ((name != null && name.isNotEmpty) &&
         (phone != null && phone.isNotEmpty) &&
         (age != null && age.isNotEmpty) &&
-        (gender != null && gender.isNotEmpty && gender != "Select Gender") &&
         (alternate_phone != null && alternate_phone.isNotEmpty) &&
         (owner_phone != null && owner_phone.isNotEmpty)) {
       print(
           "${name}       ${phone}       ${age}          here${gender}           ${alternate_phone}       ${owner_phone}");
       final url = NetworkInfo.url2 + "/tenant.php";
       final uri = Uri.parse(url);
-      final response = await http.post(uri,
-          body: jsonEncode(body),
-          headers: {'Content-Type': 'application/json'});
+      final response = await http.post(uri, body: jsonEncode(body));
       print(response.body);
       print(response.statusCode);
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         print('Creation Success');
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PresidentHomeScreen(
-                    "Home", president_phone_number, block_name)));
-        SnackBarWidget.scaffoldMessage(
-            context, 'Added Successfully', "success");
+        if (role != 'Owner') {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PresidentHomeScreen(
+                      "Home", president_phone_number, community_name)));
+          SnackBarWidget.scaffoldMessage(
+              context, 'Added Successfully', "success");
+        } else if (role == 'Owner') {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => OwnerHomeScreen(
+                      role, president_phone_number, community_name)));
+          SnackBarWidget.scaffoldMessage(
+              context, 'Added Successfully', "success");
+        }
       } else if (response.statusCode == 404) {
-        print("here ${response.statusCode}");
         SnackBarWidget.scaffoldMessage(context, "Owner doesn't exist", "error");
+        print("here ${response.statusCode}");
+      } else if (response.statusCode == 204) {
+        SnackBarWidget.scaffoldMessage(
+            context, "Please check the flat number/block name", "error");
       } else {
         SnackBarWidget.scaffoldMessage(context, "Creation failed", "error");
       }
     } else {
       print("please enter all the fieds");
-      scaffoldMessage(context, "Fill the data", "error");
+      SnackBarWidget.scaffoldMessage(context, "Fill the data", "error");
     }
   }
 
   Future<void> updateTenant() async {
+    print("updte tenent $role    $president_phone_number     $community_name");
     final todo = widget.todo;
-
+    print(community_name);
     final name = name_Controller.text;
     final age = age_Controller.text;
-    final gender = selectedItem.toString();
+    final int gender = selectedPosition;
     final phone = phone_Controller.text;
     final alternate_phone = alternate_phone_Controller.text;
     final created_date = todo!['created_date'];
     final tenant_id = todo!['tenant_id'];
     final owner_id = todo!['owner_id'];
     final owner_phone = owner_phone_Contoller.text;
+    final block_name = _selectedItem.toString();
     final body = {
       "name": name,
       "age": age,
@@ -358,9 +454,11 @@ class _AddTenantState extends State<AddTenant> {
       "owner_id": owner_id,
       "role": "Tenant",
       "owner_phone_number": owner_phone,
+      "community_name": community_name,
       "block_name": block_name
     };
-
+    print(_selectedItem);
+    print(block_name);
     if (name != null &&
         name.isNotEmpty &&
         phone != null &&
@@ -368,72 +466,84 @@ class _AddTenantState extends State<AddTenant> {
         age != null &&
         age.isNotEmpty &&
         gender != null &&
-        gender.isNotEmpty &&
-        gender != "Select Gender" &&
         alternate_phone != null &&
         alternate_phone.isNotEmpty &&
         owner_phone != null &&
         owner_phone.isNotEmpty) {
-      final url = NetworkInfo.url2 + "/owner.php";
-
+      final url = NetworkInfo.url2 + "tenant.php";
       final uri = Uri.parse(url);
+      print(url);
       final response = await http.put(uri,
           body: jsonEncode(body),
           headers: {'Content-Type': 'application/json'});
       print(response.body);
-      if (response.statusCode == 200) {
-        print('Creation Success');
-        SnackBarWidget.scaffoldMessage(
-            context, 'Updated Successfully', "success");
-        Navigator.of(context).pop();
-      } else {
-        SnackBarWidget.scaffoldMessage(
-            context, "Updation failed failed", "error");
-        print(response.body);
-        print(response.statusCode);
+      print(response.statusCode);
+      try {
+        if (response.statusCode == 200) {
+          print('Updation Success');
+
+          if (role != 'Owner') {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PresidentHomeScreen(
+                        "Home", president_phone_number, community_name)));
+            SnackBarWidget.scaffoldMessage(
+                context, 'Updated Successfully', "success");
+          } else if (role == 'Owner') {
+            print("navigating from tenant owner role to owner's screen");
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OwnerHomeScreen(
+                        role, president_phone_number, community_name)));
+            SnackBarWidget.scaffoldMessage(
+                context, 'Updated Successfully', "success");
+          }
+        } else {
+          SnackBarWidget.scaffoldMessage(
+              context, "Updation failed failed", "error");
+          //   print(response.body);
+          print("here");
+          print(response.statusCode);
+        }
+      } catch (e) {
+        print(e);
       }
     } else {
-      scaffoldMessage(context, "Please fill all the fields", "error");
+      SnackBarWidget.scaffoldMessage(
+          context, "Please fill all the fields", "error");
+      print("please enter fileds");
     }
   }
 
-  void scaffoldMessage(BuildContext context, String msg, String status) {
-    print("scaffold");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        action: SnackBarAction(
-          label: 'Action',
-          onPressed: () {
-            // Code to execute.
-          },
-        ),
-        backgroundColor: (status == "success") ? Colors.green : Colors.red,
-        content: Row(
-          children: <Widget>[
-            // add your preferred icon here
-            Icon(
-              (status == "success") ? Icons.check_circle : Icons.dangerous,
-              color: (status == "success" ? Colors.white : Colors.white),
-            ),
-            // add your preferred text content here
-            Text(
-              "  ${msg}",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-          ],
-        ),
-
-        duration: const Duration(milliseconds: 5000),
-        width: 400.0,
-        // Width of the SnackBar.
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8.0, // Inner padding for SnackBar content.
-        ),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-      ),
-    );
+  Future<void> fetchApartments(String block_name) async {
+    String url = NetworkInfo.url2 + "/owner.php?community_name=$community_name";
+    try {
+      http.Response response = await http.get(Uri.parse(url));
+      print("the apartmtnet are ");
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          apartmentList =
+              data.map<String>((item) => item['apartment_name']).toList();
+          if (block_name.isEmpty) {
+            print("apartments are $apartmentList");
+            if (apartmentList.isNotEmpty) {
+              _selectedItem = apartmentList[0];
+            }
+          } else {
+            int index = apartmentList.indexOf(block_name);
+            _selectedItem = apartmentList[index];
+          }
+        });
+      } else {
+        print("Failed to fetch apartments: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching apartments: $e");
+    }
   }
 }

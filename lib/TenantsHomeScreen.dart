@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'Tenants/RequestingScreen.dart';
 import 'tenants/Visitors.dart';
-import 'tenants/RequestingScreen.dart';
 
 class TenantsHomeScreen extends StatelessWidget {
   String text, phone;
@@ -30,7 +29,7 @@ class TenantsHomeScreen extends StatelessWidget {
           body: TabBarView(
             children: [
               VisitorsScreen(phone),
-              RequesingScreen(),
+              RequestingScreen(),
             ],
           ), // TabBarView
         ), // Scaffold
