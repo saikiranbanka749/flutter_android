@@ -231,6 +231,7 @@ class _myLoginPage extends State<LoginPage> {
       try {
         final response = await http.post(Uri.parse(url), body: body);
         print(response.body);
+        print(response.statusCode);
         var responseData = response.body.replaceAll('"', '');
         if (response.body.replaceAll('"', '') == "Error") {
           SnackBarWidget.scaffoldMessage(
@@ -242,6 +243,7 @@ class _myLoginPage extends State<LoginPage> {
           if (myArray[0] == "Success") {
             // List<String> values = ['Alekya', 'plam', 'woods'];
             String combinedString = myArray.join(' ');
+            print(combinedString);
             print("inside login $text");
             if (text == "Admin") {
               print("heer");
@@ -252,10 +254,12 @@ class _myLoginPage extends State<LoginPage> {
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
             } else if (text == "President Login") {
+              print(myArray);
               myArray.removeAt(0);
               print(myArray);
+              String combinedString = myArray.join(' ');
               print(myArray[1]);
-              print("hai ${phone} ");
+              print("hai ${phone}  combined String  ${combinedString}");
 
               Navigator.push(
                   context,
@@ -291,9 +295,12 @@ class _myLoginPage extends State<LoginPage> {
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
             } else if (text == "SecurityGaurd Login") {
+              print("before removing $myArray");
               myArray.removeAt(0);
               print(myArray);
               print(myArray[1]);
+
+              String combinedString = myArray.join(' ');
               print("clicked $combinedString");
               Navigator.push(
                   context,

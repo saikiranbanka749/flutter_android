@@ -25,7 +25,7 @@ class _MoonBlockState extends State<MoonBlock> {
     this.title = title;
     //  this.president_phone_number = president_phone;
     pageOptions = [
-      OwnersScreen('Owner', "", "", ":SuperAdmin"),
+      OwnersScreen('Owner', "", "", "Superadmin"),
       TenantsScreen('Tenant', "", "", "Superadmin"),
       SecurityScreen('Security', "", "", "SuperAdmin"),
       ProfileScreen("Profile", "")

@@ -9,11 +9,12 @@ import 'PresidentHomeScreen.dart';
 
 class AddSecurity extends StatefulWidget {
   final Map? todo;
-  String president_phone, block_name;
+  String role, president_phone, block_name;
 
   AddSecurity(
       {super.key,
       this.todo,
+      required this.role,
       required this.president_phone,
       required this.block_name}) {
     print('${president_phone}    ${block_name}');
@@ -21,11 +22,11 @@ class AddSecurity extends StatefulWidget {
 
   @override
   State<AddSecurity> createState() =>
-      _AddSecurityState(president_phone, block_name);
+      _AddSecurityState(role, president_phone, block_name);
 }
 
 class _AddSecurityState extends State<AddSecurity> {
-  String president_phone = "", block_name = "";
+  String role = "", president_phone = "", block_name = "";
   bool isEdit = false;
   bool inputTextNotNull = false;
   DateTime? _serviceStartingDate;
@@ -44,7 +45,8 @@ class _AddSecurityState extends State<AddSecurity> {
   TextEditingController alternatePhoneNumber_controller =
       TextEditingController();
 
-  _AddSecurityState(String president_phone, String block_name) {
+  _AddSecurityState(String role, String president_phone, String block_name) {
+    this.role = role;
     this.president_phone = president_phone;
     this.block_name = block_name;
   }
@@ -91,12 +93,6 @@ class _AddSecurityState extends State<AddSecurity> {
         home: Scaffold(
           appBar: AppBar(
             title: const Text('Add Security'),
-            leading: IconButton(
-              icon: Icon(Icons.keyboard_backspace_outlined),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            ),
           ),
           body: ListView(
             padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
@@ -529,7 +525,7 @@ class _AddSecurityState extends State<AddSecurity> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    PresidentHomeScreen("Home", president_phone, block_name)));
+                    PresidentHomeScreen(role, president_phone, block_name)));
         SnackBarWidget.scaffoldMessage(
             context, "Added successfully", "success");
       } else {

@@ -43,7 +43,7 @@ class _TenantsScreenState extends State<TenantsScreen> {
         home: Scaffold(
           appBar: text != null
               ? (AppBar(
-                  title: Text(text),
+                  title: Text('tenant'),
                   backgroundColor: Colors.blueAccent,
                 ))
               : null,
@@ -171,13 +171,14 @@ class _TenantsScreenState extends State<TenantsScreen> {
   Future<void> fetchTodo() async {
     print(president_phone_number);
 
-    if (role == "Home") {
+    if ((role == "Home")) {
       role = "AssociationPresident";
     }
     role = role.replaceAll(' ', '');
+
     //roles = (role == "Home") ? "Association president" : '';
     String url = NetworkInfo.url2 +
-        "/tenant.php?phone_number=${president_phone_number}&role=${role}";
+        "/tenant.php?phone_number=${president_phone_number}&role=${text}";
     print(url);
     try {
       http.Response response = await http.get(Uri.parse(url));

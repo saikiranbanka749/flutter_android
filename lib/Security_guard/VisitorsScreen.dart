@@ -434,6 +434,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
 
   Future<void> fetchApartments(String communityName) async {
     String url = NetworkInfo.url2 + "/owner.php?community_name=$communityName";
+    print(url);
     try {
       http.Response response = await http.get(Uri.parse(url));
       print("Fetching apartments...");

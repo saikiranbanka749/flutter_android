@@ -28,9 +28,12 @@ class HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
+  bool isSwitched = true;
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -47,85 +50,81 @@ class HomeScreenState extends State<HomeScreen> {
         ),
         title: Text('Home'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 50,
-          ),
-          Expanded(
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: 900.0,
-                enlargeCenterPage: true,
-                autoPlay: true,
-                aspectRatio: 16 / 9,
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enableInfiniteScroll: true,
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                viewportFraction: 0.8,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: screenHeight * 0.6,
+              child: CarouselSlider(
+                options: CarouselOptions(
+                  enlargeCenterPage: true,
+                  autoPlay: true,
+                  aspectRatio: 16 / 9,
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enableInfiniteScroll: true,
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  viewportFraction: 0.8,
+                ),
+                items: [
+                  'assets/images/apartments/apartment1.jpg',
+                  'assets/images/apartments/apartment2.jpg',
+                  'assets/images/apartments/apartment3.jpg',
+                ].map((item) {
+                  return Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage(item),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-              items: [
-                'assets/images/apartments/apartment1.jpg',
-                'assets/images/apartments/apartment2.jpg',
-                'assets/images/apartments/apartment3.jpg',
-              ].map((item) {
-                return Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage(item),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                );
-              }).toList(),
             ),
-          ),
-          SizedBox(height: 20),
-          Container(
-            width: MediaQuery.of(context).size.width * 0.2,
-            color: Colors.blue,
-            padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Apartments',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              AddApartment(title, president_phone, block_name),
-                        ),
-                      );
-                    },
+            SizedBox(height: 20),
+            Container(
+              color: Colors.blue,
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+              child: Row(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomLeft,
                     child: Text(
-                      'Add Apartment',
-                      style: TextStyle(color: Colors.white),
+                      'Apartments',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  Spacer(),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddApartment(
+                                title, president_phone, block_name),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Add Apartment',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
+            SizedBox(height: 20),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: DataTable(
                 columnSpacing: (screenWidth >= 600) ? 10 : 2,
                 headingRowHeight: 60,
@@ -134,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
                 columns: [
                   DataColumn(
                     label: SizedBox(
-                      width: screenWidth * 0.2, // Example dynamic width
+                      width: screenWidth * 0.2,
                       child: Center(
                           child: Text(
                         (screenWidth <= 600)
@@ -148,63 +147,80 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   DataColumn(
-                      label: SizedBox(
-                    width: screenWidth * 0.2, // Example dynamic width
-                    child: Center(
-                        child: Text(
-                      (screenWidth <= 600)
-                          ? 'Community\n'
-                              '  Name'
-                          : 'Community Name',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth <= 600 ? 12 : 16,
-                      ),
-                    )),
-                  )),
-                  DataColumn(
                     label: SizedBox(
-                        width: screenWidth * 0.2, // Example dynamic width
-                        child: Center(
+                      width: screenWidth * 0.2,
+                      child: Center(
                           child: Text(
-                            'No of Flats',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenWidth <= 600 ? 12 : 16,
-                            ),
-                          ),
-                        )),
+                        (screenWidth <= 600)
+                            ? 'Community\n'
+                                '  Name'
+                            : 'Community Name',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth <= 600 ? 12 : 16,
+                        ),
+                      )),
+                    ),
                   ),
                   DataColumn(
                     label: SizedBox(
-                        width: screenWidth * 0.2, // Example dynamic width
-                        child: Center(
-                          child: Text(
-                            'No of \n Floors',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenWidth <= 600 ? 12 : 16,
-                            ),
+                      width: screenWidth * 0.2,
+                      child: Center(
+                        child: Text(
+                          'No of Flats',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: screenWidth <= 600 ? 12 : 16,
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ),
                   DataColumn(
                     label: SizedBox(
-                        // Example dynamic width
+                      width: screenWidth * 0.2,
+                      child: Center(
                         child: Text(
-                      '  Flats\nper floor',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: screenWidth <= 600 ? 12 : 16,
+                          'No of \n Floors',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: screenWidth <= 600 ? 12 : 16,
+                          ),
+                        ),
                       ),
-                    )),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: screenWidth <= 600
+                          ? screenWidth * 0.2
+                          : screenWidth * 0.1,
+                      child: Text(
+                        '  Flats\nper floor',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth <= 600 ? 12 : 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: screenWidth * 0.1,
+                      child: Text(
+                        'Actions',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth <= 600 ? 12 : 16,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
                 rows: data.map((item) {
                   return DataRow(
                     color: MaterialStateProperty.resolveWith<Color?>(
                       (Set<MaterialState> states) {
-                        // Alternate row color
                         return data.indexOf(item) % 2 == 0
                             ? Colors.grey[100]
                             : Colors.white;
@@ -213,7 +229,10 @@ class HomeScreenState extends State<HomeScreen> {
                     cells: [
                       DataCell(Center(
                         child: Text(
-                          item['apartment_name'].toString(),
+                          (item['apartment_name'] != null &&
+                                  item['apartment_name'].isNotEmpty)
+                              ? item['apartment_name'].toString()
+                              : 'N/A',
                           style: TextStyle(
                               fontSize: (screenWidth <= 600) ? 12 : 14),
                         ),
@@ -221,7 +240,10 @@ class HomeScreenState extends State<HomeScreen> {
                       DataCell(
                         Center(
                             child: Text(
-                          item['community_name'].toString(),
+                          (item['community_name'] != null &&
+                                  item['community_name'].isNotEmpty)
+                              ? item['community_name'].toString()
+                              : 'N/A',
                           style: TextStyle(
                               fontSize: (screenWidth <= 600) ? 12 : 14),
                         )),
@@ -229,33 +251,125 @@ class HomeScreenState extends State<HomeScreen> {
                       DataCell(
                         Center(
                             child: Text(
-                          item['no_of_plots'].toString(),
-                          style: TextStyle(
-                              fontSize: (screenWidth <= 600) ? 12 : 14),
-                        )),
-                      ),
-                      DataCell(
-                        Center(
-                            child: Text(
-                          item['no_of_floors'].toString(),
+                          (item['no_of_plots'] != null &&
+                                  item['no_of_plots'].isNotEmpty)
+                              ? item['no_of_plots'].toString()
+                              : 'N/A',
                           style: TextStyle(
                               fontSize: (screenWidth <= 600) ? 12 : 14),
                         )),
                       ),
                       DataCell(Center(
                         child: Text(
-                          item['plot_per_floor'].toString(),
+                          (item['no_of_floors'] != null &&
+                                  item['no_of_floors'].isNotEmpty)
+                              ? item['no_of_floors'].toString()
+                              : 'N/A',
                           style: TextStyle(
                               fontSize: (screenWidth <= 600) ? 12 : 14),
                         ),
                       )),
+                      DataCell(Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          (item['plot_per_floor'] != null &&
+                                  item['plot_per_floor'].isNotEmpty)
+                              ? item['plot_per_floor'].toString()
+                              : 'N/A',
+                          style: TextStyle(
+                              fontSize: (screenWidth <= 600) ? 12 : 14),
+                        ),
+                      )),
+                      DataCell(Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit,
+                                    size: screenWidth <= 600 ? 12 : 18,
+                                    color: Colors.blue),
+                                onPressed: () {},
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete,
+                                    size: screenWidth <= 600 ? 12 : 18,
+                                    color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return SimpleDialog(
+                                            title: Text('Alert'),
+                                            children: [
+                                              Padding(
+                                                child: Text(
+                                                    'Are you sure to delete?'),
+                                                padding: EdgeInsets.all(20.0),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                // Aligns children to the end (right in LTR languages)
+                                                children: [
+                                                  Expanded(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.bottomRight,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        // Aligns buttons to the end of the row
+                                                        children: [
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: Text(
+                                                              'Yes',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .red),
+                                                            ),
+                                                          ),
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: Text('No'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ]);
+                                      });
+                                },
+                              ),
+                              Switch(
+                                  value: isSwitched,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      isSwitched = value;
+                                    });
+                                  })
+                            ],
+                          ))),
                     ],
                   );
                 }).toList(),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -267,12 +381,23 @@ class HomeScreenState extends State<HomeScreen> {
     print(url);
     final response = await http.get(uri);
     print(response.body);
+
     try {
+      print(response.body.runtimeType);
+      dynamic jsonResponse = json.decode(response.body);
+      print(jsonResponse.runtimeType);
+      List<dynamic> dataList = jsonResponse as List<dynamic>;
+      print(dataList.runtimeType);
+
+      print(dataList.runtimeType);
+      print(response.body.runtimeType);
       setState(() {
-        data = json.decode(response.body);
+        data = dataList;
+        print(data);
       });
       print("Fetched data: $data");
     } catch (e) {
+      print(data);
       print('Error fetching data: $e');
     }
   }

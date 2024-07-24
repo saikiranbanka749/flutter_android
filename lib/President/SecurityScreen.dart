@@ -98,7 +98,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           floatingActionButton: role != "SuperAdmin"
               ? FloatingActionButton.extended(
                   onPressed: () {
-                    NavigateToAddPage();
+                    NavigateToAddPage(role);
                   },
                   label: Text("Add Security"))
               : null,
@@ -112,6 +112,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         context,
         MaterialPageRoute(
             builder: (context) => AddSecurity(
+                role: role,
                 president_phone: president_phone,
                 todo: item,
                 block_name: block_name)));
@@ -122,13 +123,15 @@ class _SecurityScreenState extends State<SecurityScreen> {
     fetchTodo();
   }
 
-  Future<void> NavigateToAddPage() async {
+  Future<void> NavigateToAddPage(role) async {
     print('${president_phone}    ${block_name}');
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => AddSecurity(
-                president_phone: president_phone, block_name: block_name)));
+                role: role,
+                president_phone: president_phone,
+                block_name: block_name)));
     setState(() {
       isLoading = true;
     });

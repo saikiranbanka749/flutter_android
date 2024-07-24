@@ -45,6 +45,10 @@ class _AddApartmentState extends State<AddApartment> {
     super.initState();
     _selectedItem = FlotType.first;
     _selectedItem2 = Furnished.first;
+    // List<String> words = communityname.split(' ');
+    // words.removeAt(0);
+    // print(words);
+    // String result = words.join(' ');
     communityName_controller.text = communityname;
   }
 

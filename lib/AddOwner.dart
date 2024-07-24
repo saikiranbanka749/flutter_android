@@ -35,8 +35,10 @@ class _AddOwnerState extends State<AddOwner> {
 
   @override
   void initState() {
+    print(community_name);
+    print(president_phone_number);
     super.initState();
-
+    fetchApartments('');
     if (widget.todo != null) {
       isEdit = true;
       final todo = widget.todo!;
@@ -54,7 +56,7 @@ class _AddOwnerState extends State<AddOwner> {
       selectedPosition = int.parse(gender);
       phone_Controller.text = phone;
       alt_phone_Controller.text = alt_phone;
-      fetchApartments(_selectedItem.toString());
+      //  fetchApartments(_selectedItem.toString());
     } else {
       fetchApartments('');
     }
@@ -267,7 +269,7 @@ class _AddOwnerState extends State<AddOwner> {
   }
 
   Future<void> updateOwner() async {
-    print(community_name);
+    print("update owner $community_name");
     final todo = widget.todo;
     final id = todo!['owner_id'];
     final created_date = todo['created_date'];
@@ -295,21 +297,24 @@ class _AddOwnerState extends State<AddOwner> {
         },
       );
       print(response.body);
+      print(response.statusCode);
       if (response.statusCode >= 200 && response.statusCode <= 204) {
+        print("$president_phone_number    $community_name");
         SnackBarWidget.scaffoldMessage(
             context, "Updated Successfully", "success");
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                PresidentHomeScreen("President", president_phone_number, ""),
+            builder: (context) => PresidentHomeScreen(
+                "President", president_phone_number, community_name),
           ),
         );
       } else if (response.statusCode == 503) {
         SnackBarWidget.scaffoldMessage(
             context, "Please try after some time", "error");
       } else {
-        SnackBarWidget.scaffoldMessage(context, "User Adding failed", "error");
+        SnackBarWidget.scaffoldMessage(
+            context, "User updation failed", "error");
       }
     } catch (e) {
       print(e.toString());
@@ -325,8 +330,12 @@ class _AddOwnerState extends State<AddOwner> {
     final String phone = phone_Controller.text.toString();
     final String altPhone = alt_phone_Controller.text.toString();
     final String apartment_name = _selectedItem.toString();
+    // List<String> words = community_name.split(' ');
+    // words.removeAt(0);
+    // print(words);
+    // String result_community_name = words.join(' ');
     String url = NetworkInfo.url2 + "/owner.php";
-
+    print(url);
     try {
       http.Response response = await http.post(
         Uri.parse(url),
@@ -343,6 +352,7 @@ class _AddOwnerState extends State<AddOwner> {
         },
       );
       print(response.body);
+      print("\n\n\nhere");
       if (response.statusCode == 201) {
         SnackBarWidget.scaffoldMessage(
             context, "Owner added successfully", "success");
@@ -370,6 +380,7 @@ class _AddOwnerState extends State<AddOwner> {
 
   Future<void> fetchApartments(String block_name) async {
     print("called $block_name");
+
     String url = NetworkInfo.url2 + "/owner.php?community_name=$community_name";
     print(url);
     try {

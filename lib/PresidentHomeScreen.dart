@@ -36,8 +36,21 @@ class _HomePageState extends State<PresidentHomeScreen> {
         HomeScreen('title', president_phone, block_name),
       OwnersScreen(role == "SuperAdmin" ? "Super Admin" : 'Owner',
           president_phone, block_name, role),
-      TenantsScreen(role == "SuperAdmin" ? "Super Admin" : 'Tenant',
-          president_phone, block_name, role),
+      TenantsScreen(
+          role == "SuperAdmin"
+              ? "Super Admin"
+              : ((role == "President") ||
+                      (role == "AssociationPresident") ||
+                      (role == "Association President"))
+                  ? "AssociationPresident"
+                  : 'Tenant',
+          president_phone,
+          block_name,
+          ((role == "President") ||
+                  (role == "AssociationPresident") ||
+                  (role == "Association President"))
+              ? "AssociationPresident"
+              : role),
       SecurityScreen(role == "SuperAdmin" ? "Super Admin" : 'Security',
           president_phone_number, block_name, role),
       ((role != "SuperAdmin")

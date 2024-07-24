@@ -40,7 +40,7 @@ class AddTenantState extends State<AddTenant> {
   TextEditingController phone_Controller = TextEditingController();
   TextEditingController alternate_phone_Controller = TextEditingController();
   TextEditingController owner_phone_Contoller = TextEditingController();
-  TextEditingController flat_number = TextEditingController();
+  TextEditingController flat_number_controller = TextEditingController();
   bool isTextFieldEnabled = false;
 
   AddTenantState(
@@ -53,11 +53,17 @@ class AddTenantState extends State<AddTenant> {
 
   @override
   void initState() {
-    print("role: $role,    community_name     $community_name");
+    print(
+        "role: $role,    community_name     $community_name $president_phone_number");
     super.initState();
+    fetchApartments(community_name);
     final todo = widget.todo;
-    if (role != 'AssociationPresident')
+    if (role != 'AssociationPresident' &&
+        role != 'President' &&
+        role != 'president') {
+      print("jhghgjhjh ${role}");
       owner_phone_Contoller.text = president_phone_number;
+    }
     print("this is our ${todo}");
     if (widget.todo != null) {
       isEdit = true;
@@ -68,17 +74,22 @@ class AddTenantState extends State<AddTenant> {
       final alter_nate_phone = todo!['alternate_phone'];
       final owner_phone_number = todo!['owner_phone_number'];
       final gender = todo!['gender'];
+      final flat_number = todo!['flat_number'];
       name_Controller.text = name;
       age_Controller.text = age;
+      flat_number_controller.text = flat_number;
       //   _selectedItem = block_name;
       selectedPosition = int.parse(gender);
       phone_Controller.text = phone;
+      print("this is the owner phone number $owner_phone_number \n\n\n\n");
       alternate_phone_Controller.text = alter_nate_phone;
-      if (role != 'Association President')
-        owner_phone_Contoller.text = owner_phone_number;
-      fetchApartments(block_name);
-    } else {
-      fetchApartments('');
+      // if (role != 'Association President' &&
+      //     role != 'President' &&
+      //     role != "president" &&
+      //     role != 'AssociationPresident') {
+      owner_phone_Contoller.text = owner_phone_number;
+      // }
+      print("fetch $community_name blocks");
     }
   }
 
@@ -212,7 +223,7 @@ class AddTenantState extends State<AddTenant> {
                           child: Column(
                             children: [
                               TextFormField(
-                                controller: flat_number,
+                                controller: flat_number_controller,
                                 decoration: InputDecoration(
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: const BorderSide(
@@ -363,7 +374,7 @@ class AddTenantState extends State<AddTenant> {
     print(role);
     print("addd tenant ${community_name}");
     final name = name_Controller.text;
-    final flat_num = flat_number.text;
+    final flat_num = flat_number_controller.text;
     final age = age_Controller.text;
     final int gender = selectedPosition;
     final phone = phone_Controller.text;
@@ -389,9 +400,10 @@ class AddTenantState extends State<AddTenant> {
         (alternate_phone != null && alternate_phone.isNotEmpty) &&
         (owner_phone != null && owner_phone.isNotEmpty)) {
       print(
-          "${name}       ${phone}       ${age}          here${gender}           ${alternate_phone}       ${owner_phone}");
+          "${name}       ${phone}       ${age}       ${flat_num}   here${gender}           ${alternate_phone}       ${owner_phone}");
       final url = NetworkInfo.url2 + "/tenant.php";
       final uri = Uri.parse(url);
+      print(url);
       final response = await http.post(uri, body: jsonEncode(body));
       print(response.body);
       print(response.statusCode);
@@ -402,7 +414,7 @@ class AddTenantState extends State<AddTenant> {
               context,
               MaterialPageRoute(
                   builder: (context) => PresidentHomeScreen(
-                      "Home", president_phone_number, community_name)));
+                      role, president_phone_number, community_name)));
           SnackBarWidget.scaffoldMessage(
               context, 'Added Successfully', "success");
         } else if (role == 'Owner') {
@@ -420,6 +432,9 @@ class AddTenantState extends State<AddTenant> {
       } else if (response.statusCode == 204) {
         SnackBarWidget.scaffoldMessage(
             context, "Please check the flat number/block name", "error");
+      } else if (response.statusCode == 400) {
+        SnackBarWidget.scaffoldMessage(context,
+            "Owner and tenant phone numbers should not be same", "error");
       } else {
         SnackBarWidget.scaffoldMessage(context, "Creation failed", "error");
       }
@@ -487,7 +502,7 @@ class AddTenantState extends State<AddTenant> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => PresidentHomeScreen(
-                        "Home", president_phone_number, community_name)));
+                        role, president_phone_number, community_name)));
             SnackBarWidget.scaffoldMessage(
                 context, 'Updated Successfully', "success");
           } else if (role == 'Owner') {
@@ -518,7 +533,9 @@ class AddTenantState extends State<AddTenant> {
   }
 
   Future<void> fetchApartments(String block_name) async {
+    print("fetch todo $block_name");
     String url = NetworkInfo.url2 + "/owner.php?community_name=$community_name";
+    print(url);
     try {
       http.Response response = await http.get(Uri.parse(url));
       print("the apartmtnet are ");
@@ -536,7 +553,15 @@ class AddTenantState extends State<AddTenant> {
             }
           } else {
             int index = apartmentList.indexOf(block_name);
-            _selectedItem = apartmentList[index];
+            if (index != -1) {
+              _selectedItem = apartmentList[index];
+            } else {
+              print("Block name not found in apartment list");
+              // Handle the case where block_name is not found in the list
+              if (apartmentList.isNotEmpty) {
+                _selectedItem = apartmentList[0]; // or any default behavior
+              }
+            }
           }
         });
       } else {
