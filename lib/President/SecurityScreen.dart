@@ -78,8 +78,48 @@ class _SecurityScreenState extends State<SecurityScreen> {
                                     if (value == 'Edit') {
                                       NavigateToEditPage(item);
                                     } else if (value == 'Delete') {
-                                      deleteById(id);
-                                      print("delete");
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return SimpleDialog(
+                                              title: Text('Delete'),
+                                              children: [
+                                                Padding(
+                                                  child: Text(
+                                                      'Are you sure want to delete?'),
+                                                  padding: EdgeInsets.all(20.0),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      TextButton(
+                                                          onPressed: () {
+                                                            deleteById(id);
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Text(
+                                                            'Yes',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red),
+                                                          )),
+                                                      TextButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child: Text('No')),
+                                                    ],
+                                                  ),
+                                                )
+                                              ],
+                                            );
+                                          });
                                     }
                                   }, itemBuilder: (context) {
                                     return [

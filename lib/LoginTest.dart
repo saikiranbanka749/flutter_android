@@ -166,7 +166,8 @@ class LoginScreenTest extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => TenantsHomeScreen("Tenant", phone)));
+                    builder: (context) =>
+                        TenantsHomeScreen("Tenant", phone, responseData[1])));
           } else if (text == "SecurityGaurd Login") {
             Navigator.push(
                 context,

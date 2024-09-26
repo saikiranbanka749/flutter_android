@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:allow_me/Provider/Setting_provider.dart';
+import 'package:allow_me/widgets/DialogueBox.dart';
+import 'package:allow_me/widgets/Message_box.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -177,7 +179,7 @@ class _myLoginPage extends State<LoginPage> {
                               setState(() {
                                 isLoading = true;
                               });
-                              Future.delayed(const Duration(seconds: 5), () {
+                              Future.delayed(const Duration(seconds: 300), () {
                                 setState(() {
                                   isLoading = false;
                                 });
@@ -216,65 +218,44 @@ class _myLoginPage extends State<LoginPage> {
     var phone = phoneController.text;
     var password = passwordController.text;
     var role = text;
-    print("${phone}   ${password} ${role}");
-    if ((phone != "" && phone != null && phone.isNotEmpty) &&
-        (password != "" && password != null && password.isNotEmpty)) {
-      String phoneNumber = phone.toString();
-      String passwordString = password.toString();
+    print("$phone $password $role");
+
+    if (phone.isNotEmpty && password.isNotEmpty) {
       String url = NetworkInfo.url2 + 'login.php';
-      print(url);
-      final body = {
-        "phone": phoneNumber,
-        "password": passwordString,
-        "role": role
-      };
+      final body = {"phone": phone, "password": password, "role": role};
+      print(body);
       try {
         final response = await http.post(Uri.parse(url), body: body);
+
         print(response.body);
         print(response.statusCode);
         var responseData = response.body.replaceAll('"', '');
-        if (response.body.replaceAll('"', '') == "Error") {
-          SnackBarWidget.scaffoldMessage(
+        if (response.body.contains("Invalid password")) {
+          await CustomDialogBox.DialogBox(
               context, "Invalid User Id/password", "error");
+        } else if (response.statusCode == 404) {
+          await CustomDialogBox.DialogBox(
+              context, "Please check the role before login", "error");
         } else {
           List<String> myArray = responseData.split(" ");
-          print("the response data is $myArray");
-
-          if (myArray[0] == "Success") {
-            // List<String> values = ['Alekya', 'plam', 'woods'];
-            String combinedString = myArray.join(' ');
-            print(combinedString);
-            print("inside login $text");
+          if (myArray.isNotEmpty && myArray[0] == "Success") {
+            String combinedString = myArray.skip(1).join(' ');
             if (text == "Admin") {
-              print("heer");
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (cotntext) => SuperAdmin("Superadmin")));
+                      builder: (context) => SuperAdmin("Superadmin")));
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
             } else if (text == "President Login") {
-              print(myArray);
-              myArray.removeAt(0);
-              print(myArray);
-              String combinedString = myArray.join(' ');
-              print(myArray[1]);
-              print("hai ${phone}  combined String  ${combinedString}");
-
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (cotntext) => PresidentHomeScreen(
+                      builder: (context) => PresidentHomeScreen(
                           "Association President", phone, combinedString)));
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
-              // talker.info("LOgin successfull");
             } else if (text == "Owner Login") {
-              print(" owner  login success");
-              myArray.removeAt(0);
-              print(myArray);
-              print(myArray[1]);
-              String combinedString = myArray.join(' ');
               Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -283,52 +264,39 @@ class _myLoginPage extends State<LoginPage> {
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
             } else if (text == "Tenant's Login") {
-              myArray.removeAt(0);
-              print(myArray);
-              print(myArray[1]);
-              print("Here teantn");
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          TenantsHomeScreen("Tenant", phone)));
+                          TenantsHomeScreen("Tenant", phone, combinedString)));
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
-            } else if (text == "SecurityGaurd Login") {
-              print("before removing $myArray");
-              myArray.removeAt(0);
-              print(myArray);
-              print(myArray[1]);
-
-              String combinedString = myArray.join(' ');
-              print("clicked $combinedString");
+            } else if (text == "SecurityGuard Login") {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
                           SecurityGuardHomeScreen("Security", combinedString)));
-              print("reached");
               SnackBarWidget.scaffoldMessage(
                   context, "login success", "success");
-            } else if (response.statusCode == 404) {
-              SnackBarWidget.scaffoldMessage(
-                  context, "Incorrect Username or password", "error");
             }
-          }
-          if (myArray[0] == "Error") {
-            print("this is the error");
-            SnackBarWidget.scaffoldMessage(
+          } else if (myArray.isNotEmpty && myArray[0] == "Error") {
+            await CustomDialogBox.DialogBox(
                 context, "Incorrect Username or password", "error");
+          } else {
+            await CustomDialogBox.DialogBox(
+                context, "Unexpected response from server", "error");
           }
         }
       } catch (e) {
-        print("error ${e}");
-        SnackBarWidget.scaffoldMessage(
-            context, "Authentication Error, Please contact server", "error");
+        print("error $e");
+        print(e.toString());
+        await CustomDialogBox.DialogBox(
+            context, "Please contact Admin", 'info');
       }
     } else {
-      SnackBarWidget.scaffoldMessage(
-          context, "please fill all the Fileds", "error");
+      await CustomDialogBox.DialogBox(
+          context, "Please enter username and password", "warning");
     }
   }
 }

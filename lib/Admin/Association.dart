@@ -1,4 +1,5 @@
 import 'package:allow_me/Admin/SuperAdmin.dart';
+import 'package:allow_me/Login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,7 @@ class _Association extends State<Association> {
                   Navigator.pop(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => SuperAdmin("Admin")));
+                          builder: (context) => LoginPage('Allow me')));
                 },
               ),
             ),

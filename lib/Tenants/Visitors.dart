@@ -4,25 +4,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../Network/NetworkInfo.dart';
+import '../Security_guard/Vistors_update_screen.dart';
 
 class VisitorsScreen extends StatefulWidget {
-  String phone_number = "";
+  String phone_number = "", community_name = '';
 
-  VisitorsScreen(String phone_number) {
+  VisitorsScreen(String phone_number, String community_name) {
     this.phone_number = phone_number;
+    this.community_name = community_name;
   }
 
   @override
-  State<VisitorsScreen> createState() => _VisitorsScreenState(phone_number);
+  State<VisitorsScreen> createState() =>
+      _VisitorsScreenState(phone_number, community_name);
 }
 
 class _VisitorsScreenState extends State<VisitorsScreen> {
   var items = [];
   bool isLoading = false;
-  String phone_number = "";
+  String phone_number = "", community_name = '';
 
-  _VisitorsScreenState(String phone_number) {
+  _VisitorsScreenState(String phone_number, String community_name) {
     this.phone_number = phone_number;
+    this.community_name = community_name;
   }
 
   @override
@@ -89,16 +93,17 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                       onTap: () {
                         print(item['visitor_name']);
                         print(items.runtimeType);
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) =>
-                        //         Vistors_update_screen(item),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VisitorsUpdateScreen(
+                                item, 'tenant', community_name),
+                          ),
+                        );
                       },
                       child: ListTile(
                         title: Text(item['visitor_name']),
+                        subtitle: Text(item['status']),
                       ),
                     );
                   },
@@ -113,25 +118,29 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
 
   Future<void> fetchTodo(String value, String phone_number) async {
     print(phone_number);
-    String url = NetworkInfo.url2 +
-        "t_visitors.php?status=${value}&phone=${phone_number}";
-    final uri = Uri.parse(url);
-    print("here $url");
-    final response = await http.get(uri);
-    print(response.statusCode);
-    print(response.body);
-    List data = json.decode(response.body);
-    if (response.statusCode == 200) {
-      setState(() {
-        items = data;
-        isLoading = true;
-        print("is loading value is $isLoading");
-      });
-    } else {
-      setState(() {
-        items = data;
-        isLoading = false;
-      });
+    try {
+      String url = NetworkInfo.url2 +
+          "t_visitors.php?status=${value}&phone=${phone_number}";
+      final uri = Uri.parse(url);
+      print("here $url");
+      final response = await http.get(uri);
+      print(response.statusCode);
+      print(response.body);
+      List data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        setState(() {
+          items = data;
+          isLoading = true;
+          print("is loading value is $isLoading");
+        });
+      } else {
+        setState(() {
+          items = data;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

@@ -29,6 +29,8 @@ class SuperAdminState extends State<SuperAdmin> {
     fetchTodo();
   }
 
+  List<String> menu = ['Settings', 'Logout'];
+
   @override
   Widget build(BuildContext context) {
     print(cardsData);
@@ -37,13 +39,20 @@ class SuperAdminState extends State<SuperAdmin> {
       home: Scaffold(
         appBar: AppBar(
           title: Text(text),
-          leading: IconButton(
-            icon: Icon(Icons.keyboard_backspace_outlined),
-            onPressed: () {
-              Navigator.pop(context,
-                  MaterialPageRoute(builder: (context) => LoginPage("Admin")));
-            },
-          ),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              itemBuilder: (context) => [
+                PopupMenuItem(child: Text(menu[0]), value: menu[0]),
+                PopupMenuItem(child: Text(menu[1]), value: menu[1]),
+              ],
+              onSelected: (String value) {
+                if (value == menu[1]) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => HomeScreen()));
+                }
+              },
+            ),
+          ],
         ),
         body: Container(
           decoration: new BoxDecoration(

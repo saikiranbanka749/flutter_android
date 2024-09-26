@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide CarouselController;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allow_me/Login.dart';
 import 'package:http/http.dart' as http;
@@ -136,9 +136,7 @@ class HomeScreenState extends State<HomeScreen> {
                       width: screenWidth * 0.2,
                       child: Center(
                           child: Text(
-                        (screenWidth <= 600)
-                            ? 'Apartment \n  Name'
-                            : 'Apartment Name',
+                        (screenWidth <= 600) ? 'Block \n  Name' : 'Block Name',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: screenWidth <= 600 ? 12 : 16,

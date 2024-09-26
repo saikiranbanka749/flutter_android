@@ -14,38 +14,59 @@ class OwnerHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     print(
         " this is owners home scrren   $role   $phoneNumber     $community_name"); // Logging role within build method
-    return Scaffold(
-      body: DefaultTabController(
-        length: 5,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: const TabBar(
-              tabs: [
-                Tab(
-                  icon: Icon(Icons.home),
-                  text: 'home',
+    return MaterialApp(
+        home: Scaffold(
+            body: DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Allow me',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          automaticallyImplyLeading: false,
+          bottom: const TabBar(
+            labelColor: Colors.white,
+            tabs: [
+              Tab(
+                icon: Icon(
+                  Icons.home,
+                  color: Colors.white,
                 ),
-                Tab(
-                  icon: Icon(Icons.people),
-                  text: 'tenants',
+                text: 'home',
+              ),
+              Tab(
+                icon: Icon(
+                  Icons.people,
+                  color: Colors.white,
                 ),
-                Tab(icon: Icon(Icons.person), text: 'profile'),
-                // Tab(icon: Icon(Icons.grade)),
-                // Tab(icon: Icon(Icons.email)),
-              ],
-            ), // TabBar
-            //title: const Text('GeeksForGeeks'),
-            backgroundColor: Colors.blueAccent,
-          ), // AppBar
-          body: TabBarView(
-            children: [
-              HomeScreens(),
-              TenantsScreen(role, phoneNumber, community_name),
-              ProfileScreen(),
+                text: 'tenants',
+              ),
+              Tab(
+                  icon: Icon(
+                    Icons.person,
+                    color: Colors.white,
+                  ),
+                  text: 'profile'),
+              // Tab(icon: Icon(Icons.grade)),
+              // Tab(icon: Icon(Icons.email)),
             ],
-          ), // TabBarView
-        ), // Scaffold
+          ), // TabBar
+          //title: const Text('GeeksForGeeks'),
+          backgroundColor: Colors.blueAccent.shade200,
+        ), // AppBar
+        body: TabBarView(
+          children: [
+            HomeScreens(role, phoneNumber, community_name),
+            TenantsScreen(role, phoneNumber, community_name),
+            ProfileScreen(),
+          ],
+        ), // TabBarView
       ),
-    );
+    ) // Scaffold
+
+            ));
   }
 }

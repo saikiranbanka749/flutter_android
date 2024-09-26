@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SimpleDialogBoxDemo extends StatefulWidget {
+  //String msg,infor
   @override
   State<StatefulWidget> createState() => _SimpleDialogBoxDemo();
 }

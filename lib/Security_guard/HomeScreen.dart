@@ -1,24 +1,71 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
+import '../Reports/DownloadSecurityReports.dart';
+import '../widgets/Blinking_toolTip.dart';
+import 'Vistors_update_screen.dart';
+import '../Network/NetworkInfo.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../Network/NetworkInfo.dart';
-import 'Vistors_update_screen.dart'; // Adjust path as per your project structure
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  String role = '', community_name = '';
+
+  HomeScreen(String role, String community_name) {
+    this.role = role;
+    this.community_name = community_name;
+  }
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState(role, community_name);
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Timer _timer;
+  int _blinkCount = 0;
+  final int _maxBlinks = 5;
+  final Duration _blinkInterval = Duration(milliseconds: 500);
+  String role = '', community_name = '';
+
+  _HomeScreenState(String role, String community_name) {
+    this.role = role;
+    this.community_name = community_name;
+  }
+
   bool isLoading = true;
   List<Map<String, dynamic>> items = [];
+
+  String selectedValue = "All";
 
   @override
   void initState() {
     super.initState();
     fetchVisitors("All");
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+  }
+
+  void _startBlinkState() {
+    _timer = Timer.periodic(_blinkInterval, (timer) {
+      setState(() {
+        _blinkCount++;
+        if (_blinkCount >= _maxBlinks) {
+          _timer.cancel();
+          _animationController.stop();
+        }
+      });
+    });
+  }
+
+  void dispose() {
+    _animationController.dispose();
+    _timer.cancel();
+    super.dispose();
   }
 
   @override
@@ -27,12 +74,67 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text('Visitors'),
         actions: [
+          BlinkingTooltip(
+            message: 'Download Reports',
+            child: IconButton(
+              icon: Icon(Iconsax.document_download),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DownloadSecurityReports(),
+                  ),
+                );
+              },
+            ),
+            blinkCount: 5, // Blinks 5 times
+          ),
           PopupMenuButton<String>(
             onSelected: (value) => fetchVisitors(value),
             itemBuilder: (BuildContext ctx) => [
-              PopupMenuItem(value: 'All', child: Text('All')),
-              PopupMenuItem(value: 'Pending', child: Text('Pending')),
-              PopupMenuItem(value: 'Completed', child: Text('Completed')),
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    Icon(
+                      (selectedValue == "All") ? Icons.done_all : Icons.done,
+                      color: Colors.black,
+                    ),
+                    Spacer(),
+                    Text('All'),
+                  ],
+                ),
+                value: 'All',
+              ),
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    Icon(
+                      (selectedValue == "Pending")
+                          ? Icons.done_all
+                          : Icons.done,
+                      color: Colors.black,
+                    ),
+                    Spacer(),
+                    Text('Pending')
+                  ],
+                ),
+                value: 'Pending',
+              ),
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    Icon(
+                      (selectedValue == "Completed")
+                          ? Icons.done_all
+                          : Icons.done,
+                      color: Colors.black,
+                    ),
+                    Spacer(),
+                    Text('Completed')
+                  ],
+                ),
+                value: 'Completed',
+              ),
             ],
           ),
         ],
@@ -69,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchVisitors(String status) async {
     setState(() {
       isLoading = true;
+      selectedValue = status;
     });
 
     final url = NetworkInfo.url2 +
@@ -108,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VisitorsUpdateScreen(item),
+        builder: (context) => VisitorsUpdateScreen(item, role, community_name),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:allow_me/Network/NetworkInfo.dart';
+import 'package:allow_me/widgets/DialogueBox.dart';
+import 'package:allow_me/widgets/Message_box.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +94,16 @@ class _AddSecurityState extends State<AddSecurity> {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           appBar: AppBar(
-            title: const Text('Add Security'),
+            title: Text(
+                ((widget.todo == null) ? 'Add Security' : 'Update Security')),
+            leading: (widget.todo == null)
+                ? IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.keyboard_backspace_rounded),
+                  )
+                : null,
           ),
           body: ListView(
             padding: EdgeInsets.symmetric(horizontal: 50, vertical: 30),
@@ -127,6 +138,7 @@ class _AddSecurityState extends State<AddSecurity> {
                     children: [
                       Expanded(
                         child: TextField(
+                          maxLength: 2,
                           controller: age_Controller,
                           decoration: InputDecoration(
                             hintStyle: TextStyle(color: Colors.blueAccent),
@@ -152,9 +164,15 @@ class _AddSecurityState extends State<AddSecurity> {
                       Expanded(
                         child: TextField(
                           controller: block_Controller,
+                          enabled: false,
                           decoration: InputDecoration(
                             hintStyle: TextStyle(color: Colors.blueAccent),
                             enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.blueAccent, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            disabledBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                   color: Colors.blueAccent, width: 2.0),
                               borderRadius: BorderRadius.circular(15.0),
@@ -302,8 +320,10 @@ class _AddSecurityState extends State<AddSecurity> {
                         width: 20,
                       ),
                       new Text('Shifts',
-                          style:
-                              TextStyle(color: Colors.blueAccent, fontSize: 18))
+                          style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold))
                     ],
                   ),
                 ),
@@ -311,7 +331,7 @@ class _AddSecurityState extends State<AddSecurity> {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 40,
+                        width: 10,
                       ),
                       Checkbox(
                           value: isChecked_A,
@@ -325,7 +345,7 @@ class _AddSecurityState extends State<AddSecurity> {
                           style: TextStyle(
                               color: Colors.blueAccent, fontSize: 18)),
                       SizedBox(
-                        width: 40,
+                        width: 20,
                       ),
                       Checkbox(
                           value: isChecked_B,
@@ -340,7 +360,7 @@ class _AddSecurityState extends State<AddSecurity> {
                           style: TextStyle(
                               color: Colors.blueAccent, fontSize: 18)),
                       SizedBox(
-                        width: 40,
+                        width: 20,
                       ),
                       Checkbox(
                           value: isChecked_C,
@@ -421,7 +441,7 @@ class _AddSecurityState extends State<AddSecurity> {
                   ),
                   onPressed: isEdit ? updateTodo : AddTodo,
                   style: ElevatedButton.styleFrom(
-                      primary: Colors.blueAccent,
+                      foregroundColor: Colors.blueAccent,
                       side: BorderSide(width: 1),
                       elevation: 3,
                       shape: RoundedRectangleBorder(
@@ -496,10 +516,10 @@ class _AddSecurityState extends State<AddSecurity> {
             (shiftC != null || shiftB.toString().isNotEmpty) &&
             (mobileNumber != null || mobileNumber.isNotEmpty) &&
             alternate_phone_number != null ||
-        alternate_phone_number.isNotEmpty) {
-      var aShift = shiftA ? "A" : "";
-      var bShift = shiftB ? "B" : "";
-      var cShift = shiftC ? "C" : "";
+        alternate_phone_number.isNotEmpty && (shiftA || shiftB || shiftC)) {
+      var aShift = shiftA ? "A" : null;
+      var bShift = shiftB ? "B" : null;
+      var cShift = shiftC ? "C" : null;
       final body = {
         "name": name,
         "age": age,
@@ -514,28 +534,41 @@ class _AddSecurityState extends State<AddSecurity> {
         "mobileNumber": mobileNumber,
         "alternate_phone_number": alternate_phone_number
       };
-      final uri = Uri.parse(url);
-      print(uri);
-      var response = await http.post(uri, body: jsonEncode(body));
 
-      print("here data is ${response.body}");
-      print(response.statusCode);
-      if (response.statusCode == 201) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    PresidentHomeScreen(role, president_phone, block_name)));
-        SnackBarWidget.scaffoldMessage(
-            context, "Added successfully", "success");
-      } else {
-        print("adding failed");
-        SnackBarWidget.scaffoldMessage(context, "Adding failed", "error");
+      try {
+        final uri = Uri.parse(url);
+        print(uri);
+
+        var response = await http.post(uri, body: jsonEncode(body));
+        print(response.body);
+        print(response.statusCode);
+        print("here data is ${response.body}");
+        print(response.statusCode);
+        if (response.statusCode == 201) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      PresidentHomeScreen(role, president_phone, block_name)));
+          SnackBarWidget.scaffoldMessage(
+              context, "Added successfully", "success");
+        } else if (response.statusCode == 404) {
+          CustomDialogBox.DialogBox(
+              context, "Phone number is already registered.", "info");
+        } else {
+          print("adding failed");
+          CustomDialogBox.DialogBox(
+              context, "Please enter all the fields", "warning");
+        }
+      } catch (e) {
+        CustomDialogBox.DialogBox(
+            context, "please enter all the fields", "warning");
+        print("error ${e.toString()}");
       }
     } else {
       print("please enter all the fields");
-      SnackBarWidget.scaffoldMessage(
-          context, "please enter all the fields", "error");
+      CustomDialogBox.DialogBox(
+          context, "please enter all the fields", "warning");
     }
   }
 
@@ -565,21 +598,20 @@ class _AddSecurityState extends State<AddSecurity> {
         "  ${shiftB}   ${shiftC}   ${mobileNumber}    ${alternate_phone_number}");
 
     if ((name != null || name.isNotEmpty) &&
-            (age != null || age.isNotEmpty) &&
-            (address != null || address.isNotEmpty) &&
-            (service_starting_date != null ||
-                service_starting_date.isNotEmpty) &&
-            (service_ending_date != null || service_ending_date.isNotEmpty) &&
-            (active != null || active.toString().isNotEmpty) &&
-            (shiftA != null || shiftA.toString().isNotEmpty) &&
-            (shiftB != null || shiftB.toString().isNotEmpty) &&
-            (shiftC != null || shiftB.toString().isNotEmpty) &&
-            (mobileNumber != null || mobileNumber.isNotEmpty) &&
-            alternate_phone_number != null ||
-        alternate_phone_number.isNotEmpty) {
-      var aShift = shiftA ? "A" : "";
-      var bShift = shiftB ? "B" : "";
-      var cShift = shiftC ? "C" : "";
+        (age != null || age.isNotEmpty) &&
+        (address != null || address.isNotEmpty) &&
+        (service_starting_date != null || service_starting_date.isNotEmpty) &&
+        (service_ending_date != null || service_ending_date.isNotEmpty) &&
+        (active != null || active.toString().isNotEmpty) &&
+        (shiftA != null || shiftA.toString().isNotEmpty) &&
+        (shiftB != null || shiftB.toString().isNotEmpty) &&
+        (shiftC != null || shiftB.toString().isNotEmpty) &&
+        (mobileNumber != null || mobileNumber.isNotEmpty) &&
+        (alternate_phone_number != null || alternate_phone_number.isNotEmpty) &&
+        (shiftA || shiftB || shiftC)) {
+      var aShift = shiftA ? "A" : null;
+      var bShift = shiftB ? "B" : null;
+      var cShift = shiftC ? "C" : null;
       final body = {
         "security_guard_id": security_guard_id,
         "created_date": created_date,
@@ -598,24 +630,39 @@ class _AddSecurityState extends State<AddSecurity> {
       };
       final uri = Uri.parse(url);
       var response;
+      try {
+        response = await http.put(uri,
+            body: jsonEncode(body),
+            headers: {'Content-Type': 'application/json'});
 
-      response = await http.put(uri,
-          body: jsonEncode(body),
-          headers: {'Content-Type': 'application/json'});
-
-      print(response.body);
-      if (response.statusCode == 200) {
-        SnackBarWidget.scaffoldMessage(
-            context, "Updated successfully", "success");
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    PresidentHomeScreen("Home", president_phone, block_name)));
-        //  SecurityScreen(this.text, this.president_phone, this.block_name, this.role);
-      } else {
-        SnackBarWidget.scaffoldMessage(context, "updation failed", "error");
+        print(response.body);
+        print(response.statusCode);
+        if (response.statusCode == 200) {
+          SnackBarWidget.scaffoldMessage(
+              context, "Updated successfully", "success");
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      PresidentHomeScreen(role, president_phone, block_name)));
+          //  SecurityScreen(this.text, this.president_phone, this.block_name, this.role);
+        } else if (response.statusCode == 400) {
+          print("response code is ${response.statusCode}");
+          CustomDialogBox.DialogBox(
+              context, "Please fill all the details", "error");
+        } else if (response.statusCode == 406) {
+          CustomDialogBox.DialogBox(
+              context, "Please select the shifts", "error");
+        } else {
+          CustomDialogBox.DialogBox(context, "updation failed", "error");
+        }
+      } catch (e) {
+        print(e);
+        CustomDialogBox.DialogBox(context, "Please check the data", "warning");
       }
-    } else {}
+    } else {
+      print("reached here");
+      CustomDialogBox.DialogBox(context, "Please enter all details", "warning");
+    }
   }
 }

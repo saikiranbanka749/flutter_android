@@ -59,7 +59,7 @@ class SecurityGuardScreenState extends State<SecurityGuardHomeScreen> {
               backgroundColor: Colors.blueAccent), // AppBar
           body: TabBarView(
             children: [
-              HomeScreen(),
+              HomeScreen(text, community_name),
               VisitorsScreen(community_name),
               ProfileScreen()
             ],

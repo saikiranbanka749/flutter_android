@@ -4,9 +4,9 @@ import 'Tenants/RequestingScreen.dart';
 import 'tenants/Visitors.dart';
 
 class TenantsHomeScreen extends StatelessWidget {
-  String text, phone;
+  String text, phone, community_name;
 
-  TenantsHomeScreen(this.text, this.phone);
+  TenantsHomeScreen(this.text, this.phone, this.community_name);
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,8 @@ class TenantsHomeScreen extends StatelessWidget {
           ), // AppBar
           body: TabBarView(
             children: [
-              VisitorsScreen(phone),
-              RequestingScreen(),
+              VisitorsScreen(phone, community_name),
+              RequestingScreen(phone, community_name),
             ],
           ), // TabBarView
         ), // Scaffold

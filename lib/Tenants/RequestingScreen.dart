@@ -1,14 +1,36 @@
+import 'dart:core';
+
+import 'package:allow_me/widgets/DialogueBox.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import '../Network/NetworkInfo.dart';
+import '../widgets/SnackBarWidget.dart';
 
 class RequestingScreen extends StatefulWidget {
-  const RequestingScreen();
+  String phone = '', community_name = '';
+
+  RequestingScreen(String phone, String community_name) {
+    this.phone = phone;
+    this.community_name = community_name;
+  }
 
   @override
-  State<RequestingScreen> createState() => _RequestingScreenState();
+  State<RequestingScreen> createState() {
+    return _RequestingScreenState(phone, community_name);
+  }
 }
 
 class _RequestingScreenState extends State<RequestingScreen> {
+  String phone = '', community_name = '';
+
+  _RequestingScreenState(phone, community_name) {
+    this.phone = phone;
+    this.community_name = community_name;
+  }
+
   int selectedPosition = 1;
   DateTime? _setDateValue;
   DateTime? _setTimeValue, _setInTimeValue, _setOutTimeValue;
@@ -25,6 +47,15 @@ class _RequestingScreenState extends State<RequestingScreen> {
   TextEditingController visitorAdharCardNumberController =
       TextEditingController();
   TextEditingController teenantNumberController = TextEditingController();
+
+  String apartment_name = '';
+
+  @override
+  void initState() {
+    print(phone);
+    super.initState();
+    fetchData(phone);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,6 +211,7 @@ class _RequestingScreenState extends State<RequestingScreen> {
                 TextField(
                   controller: visitorContactNumberController,
                   keyboardType: TextInputType.phone,
+                  maxLength: 10,
                   decoration: InputDecoration(
                     labelText: "Visitor Contact Number",
                     border: OutlineInputBorder(),
@@ -187,20 +219,22 @@ class _RequestingScreenState extends State<RequestingScreen> {
                 ),
                 SizedBox(height: 20),
                 TextField(
+                  maxLength: 12,
                   controller: visitorAdharCardNumberController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
+                    errorMaxLines: 5,
                     labelText: "Visitor Aadhar Card Number",
                     border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 20),
-                // Center(
-                //   child: ElevatedButton(
-                //     onPressed: addVisitor,
-                //     child: Text('Submit'),
-                //   ),
-                // ),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: addVisitor,
+                    child: Text('Submit'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -240,6 +274,105 @@ class _RequestingScreenState extends State<RequestingScreen> {
         setIntimeController.text = formattedTime;
       } else if (field == "OutTime") {
         setOutTimeController.text = formattedTime;
+      }
+    }
+  }
+
+  Future<void> fetchData(String phone_number) async {
+    print(phone_number);
+
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    String formattedTime = DateFormat('kk:mm').format(now);
+    try {
+      String url = NetworkInfo.url2 + "t_visitors.php?phone=${phone_number}";
+      final uri = Uri.parse(url);
+      print("here $url");
+      final response = await http.get(uri);
+      print(response.statusCode);
+      print(response.body);
+      List data = json.decode(response.body);
+      if (response.statusCode == 200) {
+        setState(() {
+          flatNumberController.text = data[0]['flat_number'];
+          teenantNumberController.text = data[0]['phone'];
+          setDateValueController.text = formattedDate;
+          setTimeValueController.text = formattedTime;
+          community_name = data[0]['community_name'];
+          apartment_name = data[0]['block_name'];
+        });
+      } else {
+        setState(() {});
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> addVisitor() async {
+    String url = NetworkInfo.url2 + "visitor.php";
+    final String name = nameController.text.trim();
+    final int gender = selectedPosition;
+    final String purpose = purposeController.text.trim();
+    final String flatNumber = flatNumberController.text.trim();
+    final String date = setDateValueController.text.trim();
+    final String time = setTimeValueController.text.trim();
+    final String inTime = setIntimeController.text.trim();
+    final String outTime = setOutTimeController.text.trim();
+    final String visitorContactNumber =
+        visitorContactNumberController.text.trim();
+    final String visitorAdharCardNumber =
+        visitorAdharCardNumberController.text.trim();
+    final String tenantMobileNumber = teenantNumberController.text.trim();
+
+    if (name.isNotEmpty &&
+        purpose.isNotEmpty &&
+        flatNumber.isNotEmpty &&
+        date.isNotEmpty &&
+        time.isNotEmpty &&
+        inTime.isNotEmpty &&
+        outTime.isNotEmpty &&
+        visitorContactNumber.isNotEmpty &&
+        visitorAdharCardNumber.isNotEmpty &&
+        tenantMobileNumber.isNotEmpty) {
+      var body = {
+        "name": name,
+        "gender": gender == 1 ? "Male" : "Female",
+        "purpose": purpose,
+        "flat_number": flatNumber,
+        "date_time": "$date $time",
+        "inTime": inTime,
+        "outTime": outTime,
+        "visitorContactNumber": visitorContactNumber,
+        "visitorAdarCardNumber": visitorAdharCardNumber,
+        "teenantMobileNumber": tenantMobileNumber,
+        "role": 'tenant',
+        'community_name': community_name,
+        'block_name': apartment_name,
+        "teenantMobileNumber": phone
+      };
+
+      final uri = Uri.parse(url);
+      print(uri);
+
+      var response = await http.post(uri, body: jsonEncode(body));
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        CustomDialogBox.DialogBox(
+            context, "Visitor added successfully", "success");
+        //  SnackBarWidget.scaffoldMessage(context, "Visitor added", "success");
+        setState(() {
+          nameController.text = '';
+          purposeController.text = '';
+          setIntimeController.text = '';
+          setOutTimeController.text = '';
+          visitorAdharCardNumberController.text = '';
+          visitorContactNumberController.text = '';
+        });
+      } else {
+        SnackBarWidget.scaffoldMessage(
+            context, "Visitor adding failed", "error");
       }
     }
   }

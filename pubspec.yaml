@@ -2,7 +2,7 @@ name: allow_me
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.devs
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -30,15 +30,37 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http:
-  carousel_slider: ^4.0.0
+  http: ^0.13.5
+  carousel_slider:
+    git:
+      url: https://github.com/sampaio96/flutter_carousel_slider.git
+      ref: master
   country_code_picker: ^3.0.0
   cupertino_icons: ^1.0.2
   flutter_otp_text_field: ^1.1.0+2
   provider: ^6.1.2
   string_capitalize: ^0.0.10
+  share: ^2.0.4
+  whatsapp_share: ^2.0.2
+  flutter_animated_dialog: ^2.0.1
+  url_launcher: ^6.1.11
+  iconsax: ^0.0.8
+  file_picker: ^5.2.0
+  excel: ^3.0.0
+  csv: ^6.0.0
+  open_file: ^3.3.2
+  path_provider: ^2.1.0
+  universal_html: ^2.2.2
+  quickalert: ^1.1.0
+  intl: ^0.18.1
+  image_picker: ^1.0.2
+  universal_platform: ^1.0.0
+  dio: any
+
+
   #  shared_preferences_web: ^2.0.0
   #  flutter_session: ^0.1.1
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -48,15 +70,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  intl: ^0.17.0
 
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+# The "flutter_lints" package below contains a set of recommended lints to
+# encourage good coding practices. The lint set provided by the package is
+# activated in the `analysis_options.yaml` file located at the root of your
+# package. See that file for information about deactivating specific lint
+# rules and activating additional ones.
+flutter_lints: ^2.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

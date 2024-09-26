@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:allow_me/AddOwner.dart';
 import 'package:allow_me/Network/NetworkInfo.dart';
 import 'package:allow_me/OwnersHomeScreen.dart';
 import 'package:allow_me/President/TenantsScreen.dart';
 import 'package:allow_me/PresidentHomeScreen.dart';
+import 'package:allow_me/widgets/DialogueBox.dart';
 import 'package:allow_me/widgets/SnackBarWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +34,8 @@ class AddTenantState extends State<AddTenant> {
   final _formKey = GlobalKey<FormState>();
   String community_name = "", president_phone_number = "", role = '';
   bool isEdit = false;
-
+  String _selectFlatNumber = 'Select flat number';
+  List<String> flat_numbers_List = [];
   List<String> apartmentList = [];
   String _selectedItem = 'Select Apartment/Block';
   TextEditingController name_Controller = TextEditingController();
@@ -56,7 +59,10 @@ class AddTenantState extends State<AddTenant> {
     print(
         "role: $role,    community_name     $community_name $president_phone_number");
     super.initState();
+    AddOwner a = new AddOwner();
+
     fetchApartments(community_name);
+    fetchFlatNumber(_selectedItem);
     final todo = widget.todo;
     if (role != 'AssociationPresident' &&
         role != 'President' &&
@@ -81,16 +87,62 @@ class AddTenantState extends State<AddTenant> {
       //   _selectedItem = block_name;
       selectedPosition = int.parse(gender);
       phone_Controller.text = phone;
-      print("this is the owner phone number $owner_phone_number \n\n\n\n");
+      print("this is the owner phone number ${owner_phone_number} \n\n\n\n");
       alternate_phone_Controller.text = alter_nate_phone;
       // if (role != 'Association President' &&
       //     role != 'President' &&
       //     role != "president" &&
       //     role != 'AssociationPresident') {
       owner_phone_Contoller.text = owner_phone_number;
-      // }
-      print("fetch $community_name blocks");
+      fetchApartments(community_name);
+
+      if (todo['block_name'] != null &&
+          apartmentList.contains(todo['block_name'])) {
+        setState(() {
+          _selectedItem = todo['block_name'];
+          fetchFlatNumber(_selectedItem).then((_) {
+            if (!flat_numbers_List.contains(flat_number)) {
+              flat_numbers_List.add(flat_number);
+              print("in if condtion");
+              print(flat_number);
+              print(flat_numbers_List);
+            }
+            setState(() {
+              _selectFlatNumber = flat_number;
+            });
+          });
+        });
+      } else {
+        fetchApartments(block_name);
+        fetchFlatNumber(_selectedItem).then((_) {
+          if (!flat_numbers_List.contains(flat_number)) {
+            flat_numbers_List.add(flat_number);
+          }
+          setState(() {
+            _selectFlatNumber = flat_number;
+          });
+        });
+      }
+    } else {
+      if (apartmentList.isNotEmpty) {
+        setState(() {
+          _selectedItem = apartmentList[0];
+        });
+        fetchFlatNumber(_selectedItem).then((_) {
+          if (flat_numbers_List.isNotEmpty) {
+            setState(() {
+              _selectFlatNumber = flat_numbers_List[0];
+            });
+          } else {
+            setState(() {
+              _selectFlatNumber = 'Select Flat';
+            });
+          }
+        });
+      }
     }
+
+    print("fetch $community_name blocks");
   }
 
   int selectedPosition = 1;
@@ -102,13 +154,15 @@ class AddTenantState extends State<AddTenant> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-            title: Text('Add Tenants'),
-            leading: IconButton(
-              icon: Icon(Icons.keyboard_backspace_outlined),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-            )),
+            title: Text(isEdit ? 'Update Tenant' : 'Add Tenants'),
+            leading: isEdit
+                ? null
+                : IconButton(
+                    icon: Icon(Icons.keyboard_backspace_outlined),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )),
         body: ListView(
           padding: EdgeInsets.all(30),
           children: <Widget>[
@@ -147,12 +201,7 @@ class AddTenantState extends State<AddTenant> {
                       SizedBox(width: 50),
                       Expanded(
                         child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            }
-                            return null;
-                          },
+                          maxLength: 2,
                           controller: age_Controller,
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
@@ -189,6 +238,7 @@ class AddTenantState extends State<AddTenant> {
                   Row(
                     children: <Widget>[
                       Expanded(
+                        flex: 1,
                         child: RadioListTile(
                           value: 1,
                           groupValue: selectedPosition,
@@ -204,6 +254,7 @@ class AddTenantState extends State<AddTenant> {
                         ),
                       ),
                       Expanded(
+                        flex: 1,
                         child: RadioListTile(
                           value: 2,
                           groupValue: selectedPosition,
@@ -220,30 +271,32 @@ class AddTenantState extends State<AddTenant> {
                       ),
                       Expanded(
                           flex: 2,
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                controller: flat_number_controller,
-                                decoration: InputDecoration(
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(
-                                        color: Colors.blueAccent, width: 2.0),
-                                    borderRadius: BorderRadius.circular(15.0),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                      borderSide: const BorderSide(
-                                          color: Colors.blueAccent)),
-                                  label: Text(
-                                    "Flat number",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.blueAccent,
-                                    ),
-                                  ),
-                                ),
+                          child: new TextField(
+                            enabled: isEdit ? false : true,
+                            controller: owner_phone_Contoller,
+                            maxLength: 10,
+                            decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.blueAccent, width: 2.0),
+                                borderRadius: BorderRadius.circular(15.0),
                               ),
-                            ],
+                              disabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Colors.blueAccent, width: 2.0),
+                                // Set this to match enabledBorder
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  borderSide: const BorderSide(
+                                      color: Colors.blueAccent)),
+                              label: Text(
+                                "Owner Phone Number",
+                                style: TextStyle(
+                                    color: Colors.blueAccent, fontSize: 20),
+                              ),
+                            ),
                           ))
                     ],
                   ),
@@ -276,9 +329,10 @@ class AddTenantState extends State<AddTenant> {
                       ),
                       SizedBox(width: 30),
                       Expanded(
-                        child: new TextField(
+                        child: new TextFormField(
                           controller: alternate_phone_Controller,
                           maxLength: 10,
+                          keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             enabledBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
@@ -286,17 +340,33 @@ class AddTenantState extends State<AddTenant> {
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                                borderSide:
-                                    const BorderSide(color: Colors.blueAccent)),
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide:
+                                  const BorderSide(color: Colors.blueAccent),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  color: Colors.red, width: 2.0),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Colors.red),
+                            ),
                             label: Text(
-                              "Alternate Phone Numeber",
+                              "Alternate Phone Number",
                               style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.blueAccent,
-                              ),
+                                  color: Colors.blueAccent, fontSize: 20),
                             ),
                           ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Alternate phone number is required';
+                            } else if (value.length != 10) {
+                              return 'Alternate phone number must be exactly 10 digits';
+                            }
+                            return null;
+                          },
                         ),
                       )
                     ],
@@ -306,30 +376,7 @@ class AddTenantState extends State<AddTenant> {
                   ),
                   Row(children: [
                     Expanded(
-                        child: new TextField(
-                      controller: owner_phone_Contoller,
-                      maxLength: 10,
-                      decoration: InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: Colors.blueAccent, width: 2.0),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                            borderSide:
-                                const BorderSide(color: Colors.blueAccent)),
-                        label: Text(
-                          "Owner Phone Number",
-                          style:
-                              TextStyle(color: Colors.blueAccent, fontSize: 20),
-                        ),
-                      ),
-                    )),
-                    SizedBox(
-                      width: 40,
-                    ),
-                    Expanded(
+                      flex: 1,
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15.0),
@@ -351,6 +398,45 @@ class AddTenantState extends State<AddTenant> {
                             setState(() {
                               _selectedItem = newValue!;
                               print(_selectedItem);
+                            });
+                            fetchFlatNumber(_selectedItem);
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 40,
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          border:
+                              Border.all(color: Colors.blueAccent, width: 2.0),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: DropdownButton<String>(
+                          isExpanded: true,
+                          value: flat_numbers_List.contains(_selectFlatNumber)
+                              ? _selectFlatNumber
+                              : null,
+                          underline: SizedBox(),
+                          items: flat_numbers_List.isNotEmpty
+                              ? flat_numbers_List.map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList()
+                              : [
+                                  DropdownMenuItem(
+                                      value: 'Select Flat',
+                                      child: Text('Select Flat'))
+                                ],
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectFlatNumber = newValue!;
                             });
                           },
                         ),
@@ -391,8 +477,9 @@ class AddTenantState extends State<AddTenant> {
       "community_name": community_name,
       "block_name": _selectedItem.toString(),
       "role": "tenant",
-      "flat_number": flat_num,
-      // "flat_number":flat_number
+      "flat_number": _selectFlatNumber,
+      "created_by": role,
+      "updated_by": role,
     };
     if ((name != null && name.isNotEmpty) &&
         (phone != null && phone.isNotEmpty) &&
@@ -427,14 +514,20 @@ class AddTenantState extends State<AddTenant> {
               context, 'Added Successfully', "success");
         }
       } else if (response.statusCode == 404) {
-        SnackBarWidget.scaffoldMessage(context, "Owner doesn't exist", "error");
+        CustomDialogBox.DialogBox(context, "Owner doesn't exist", "info");
         print("here ${response.statusCode}");
+      } else if (response.statusCode == 401) {
+        CustomDialogBox.DialogBox(
+            context, "$owner_phone is not belongs that flat number", "info");
       } else if (response.statusCode == 204) {
         SnackBarWidget.scaffoldMessage(
             context, "Please check the flat number/block name", "error");
       } else if (response.statusCode == 400) {
-        SnackBarWidget.scaffoldMessage(context,
-            "Owner and tenant phone numbers should not be same", "error");
+        SnackBarWidget.scaffoldMessage(
+            context, "No owner existed with that number", "error");
+      } else if (response.statusCode == 409) {
+        CustomDialogBox.DialogBox(
+            context, "Tenant number already exists", "info");
       } else {
         SnackBarWidget.scaffoldMessage(context, "Creation failed", "error");
       }
@@ -470,7 +563,8 @@ class AddTenantState extends State<AddTenant> {
       "role": "Tenant",
       "owner_phone_number": owner_phone,
       "community_name": community_name,
-      "block_name": block_name
+      "block_name": block_name,
+      "updated_by": role
     };
     print(_selectedItem);
     print(block_name);
@@ -516,8 +610,7 @@ class AddTenantState extends State<AddTenant> {
                 context, 'Updated Successfully', "success");
           }
         } else {
-          SnackBarWidget.scaffoldMessage(
-              context, "Updation failed failed", "error");
+          SnackBarWidget.scaffoldMessage(context, "Updation failed", "error");
           //   print(response.body);
           print("here");
           print(response.statusCode);
@@ -533,9 +626,9 @@ class AddTenantState extends State<AddTenant> {
   }
 
   Future<void> fetchApartments(String block_name) async {
-    print("fetch todo $block_name");
+    print("fetch apartments $block_name");
     String url = NetworkInfo.url2 + "/owner.php?community_name=$community_name";
-    print(url);
+    print("gere $url");
     try {
       http.Response response = await http.get(Uri.parse(url));
       print("the apartmtnet are ");
@@ -546,12 +639,15 @@ class AddTenantState extends State<AddTenant> {
         setState(() {
           apartmentList =
               data.map<String>((item) => item['apartment_name']).toList();
+          print(apartmentList);
           if (block_name.isEmpty) {
             print("apartments are $apartmentList");
             if (apartmentList.isNotEmpty) {
+              apartmentList.insert(0, "Select Apartment");
               _selectedItem = apartmentList[0];
             }
           } else {
+            apartmentList.insert(0, "Select Apartment");
             int index = apartmentList.indexOf(block_name);
             if (index != -1) {
               _selectedItem = apartmentList[index];
@@ -562,6 +658,8 @@ class AddTenantState extends State<AddTenant> {
                 _selectedItem = apartmentList[0]; // or any default behavior
               }
             }
+            print(_selectedItem);
+            print(apartmentList);
           }
         });
       } else {
@@ -569,6 +667,43 @@ class AddTenantState extends State<AddTenant> {
       }
     } catch (e) {
       print("Error fetching apartments: $e");
+    }
+  }
+
+  Future<void> fetchFlatNumber(String selectedItem) async {
+    final url = NetworkInfo.url2 +
+        "/flats.php?community_name=$community_name&selectedblock=$selectedItem&screen=tenant";
+    print(url);
+    try {
+      final response = await http.get(Uri.parse(url));
+      print(url);
+      print(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        List<dynamic> availableFlatsDynamic = data['available_flats'];
+        List<String> availableFlats =
+            availableFlatsDynamic.map((item) => item.toString()).toList();
+
+        setState(() {
+          flat_numbers_List = availableFlats;
+          if (flat_numbers_List.isNotEmpty) {
+            if (isEdit) {
+              if (!flat_numbers_List.contains(_selectFlatNumber)) {
+                _selectFlatNumber = 'Select Flat';
+              }
+            } else {
+              flat_numbers_List.insert(0, "Select Flat");
+              _selectFlatNumber = flat_numbers_List[0];
+            }
+          } else {
+            _selectFlatNumber = 'Select Flat';
+          }
+        });
+      } else {
+        print("Failed to fetch flats: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching flats: $e");
     }
   }
 }
