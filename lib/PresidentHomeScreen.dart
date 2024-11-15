@@ -1,10 +1,10 @@
+import 'package:allow_me/Security_guard/ProfileScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
 import 'Admin/Profile.dart';
 import 'President/HomeScreen.dart';
 import 'President/OwnerScreen.dart';
-import 'President/ProfileSCreen.dart';
 import 'President/SecurityScreen.dart';
 import 'President/TenantsScreen.dart';
 
@@ -54,7 +54,8 @@ class _HomePageState extends State<PresidentHomeScreen> {
       SecurityScreen(role == "SuperAdmin" ? "Super Admin" : 'Security',
           president_phone_number, block_name, role),
       ((role != "SuperAdmin")
-          ? ProfileScreen("Profile", president_phone)
+          ? ProfileScreen(
+              "Association President", president_phone_number, block_name)
           : Profile(president_phone))
     ];
   }

@@ -29,7 +29,7 @@ class SuperAdminState extends State<SuperAdmin> {
     fetchTodo();
   }
 
-  List<String> menu = ['Settings', 'Logout'];
+  List<String> menu = ['Logout'];
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +42,12 @@ class SuperAdminState extends State<SuperAdmin> {
           actions: <Widget>[
             PopupMenuButton<String>(
               itemBuilder: (context) => [
-                PopupMenuItem(child: Text(menu[0]), value: menu[0]),
-                PopupMenuItem(child: Text(menu[1]), value: menu[1]),
+                // PopupMenuItem(child: Text(menu[0]), value: menu[0],onTap: ,),
+                PopupMenuItem(
+                  child: Text(menu[1]),
+                  value: menu[1],
+                  onTap: logOut,
+                ),
               ],
               onSelected: (String value) {
                 if (value == menu[1]) {
@@ -164,4 +168,6 @@ class SuperAdminState extends State<SuperAdmin> {
     });
     fetchTodo();
   }
+
+  Future<void> logOut() async {}
 }

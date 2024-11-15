@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import '../Reports/DownloadSecurityReports.dart';
@@ -10,15 +9,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
-  String role = '', community_name = '';
+  final String role;
+  final String communityName;
 
-  HomeScreen(String role, String community_name) {
-    this.role = role;
-    this.community_name = community_name;
-  }
+  HomeScreen(this.role, this.communityName);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState(role, community_name);
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen>
@@ -28,43 +25,25 @@ class _HomeScreenState extends State<HomeScreen>
   int _blinkCount = 0;
   final int _maxBlinks = 5;
   final Duration _blinkInterval = Duration(milliseconds: 500);
-  String role = '', community_name = '';
-
-  _HomeScreenState(String role, String community_name) {
-    this.role = role;
-    this.community_name = community_name;
-  }
 
   bool isLoading = true;
   List<Map<String, dynamic>> items = [];
-
   String selectedValue = "All";
 
   @override
   void initState() {
     super.initState();
-    fetchVisitors("All");
+    fetchVisitors(selectedValue);
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 500),
     )..repeat(reverse: true);
   }
 
-  void _startBlinkState() {
-    _timer = Timer.periodic(_blinkInterval, (timer) {
-      setState(() {
-        _blinkCount++;
-        if (_blinkCount >= _maxBlinks) {
-          _timer.cancel();
-          _animationController.stop();
-        }
-      });
-    });
-  }
-
+  @override
   void dispose() {
     _animationController.dispose();
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -72,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Visitors'),
+        title: Text('Visitors', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           BlinkingTooltip(
             message: 'Download Reports',
@@ -82,88 +61,91 @@ class _HomeScreenState extends State<HomeScreen>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DownloadSecurityReports(),
-                  ),
+                      builder: (context) => DownloadSecurityReports()),
                 );
               },
             ),
-            blinkCount: 5, // Blinks 5 times
+            blinkCount: _maxBlinks,
           ),
-          PopupMenuButton<String>(
-            onSelected: (value) => fetchVisitors(value),
-            itemBuilder: (BuildContext ctx) => [
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Icon(
-                      (selectedValue == "All") ? Icons.done_all : Icons.done,
-                      color: Colors.black,
-                    ),
-                    Spacer(),
-                    Text('All'),
-                  ],
-                ),
-                value: 'All',
-              ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Icon(
-                      (selectedValue == "Pending")
-                          ? Icons.done_all
-                          : Icons.done,
-                      color: Colors.black,
-                    ),
-                    Spacer(),
-                    Text('Pending')
-                  ],
-                ),
-                value: 'Pending',
-              ),
-              PopupMenuItem(
-                child: Row(
-                  children: [
-                    Icon(
-                      (selectedValue == "Completed")
-                          ? Icons.done_all
-                          : Icons.done,
-                      color: Colors.black,
-                    ),
-                    Spacer(),
-                    Text('Completed')
-                  ],
-                ),
-                value: 'Completed',
-              ),
-            ],
-          ),
+          _buildPopupMenu(),
         ],
       ),
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return isLoading
-                ? Center(child: CircularProgressIndicator())
-                : items.isNotEmpty
-                    ? ListView.separated(
-                        itemCount: items.length,
-                        separatorBuilder: (context, index) => Divider(
-                          color: Colors.black87,
-                        ),
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return GestureDetector(
-                            onTap: () => navigateToVisitorUpdateScreen(item),
-                            child: ListTile(
-                              title: Text(item['visitor_name']),
-                              subtitle: Text(item['status']),
-                            ),
-                          );
-                        },
-                      )
-                    : Center(child: Text("Data not available"));
-          },
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : items.isNotEmpty
+                      ? ListView.separated(
+                          itemCount: items.length,
+                          separatorBuilder: (context, index) =>
+                              SizedBox(height: 10),
+                          // Space between items
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+                            return GestureDetector(
+                              onTap: () => navigateToVisitorUpdateScreen(item),
+                              child: Card(
+                                elevation: 4,
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  // Padding inside the card
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item['visitor_name'],
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(height: 4),
+                                      // Space between title and subtitle
+                                      Text(item['status']),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : Center(child: Text("Data not available"));
+            },
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPopupMenu() {
+    return PopupMenuButton<String>(
+      onSelected: (value) => fetchVisitors(value),
+      itemBuilder: (BuildContext ctx) {
+        return [
+          _buildPopupMenuItem('All'),
+          _buildPopupMenuItem('Pending'),
+          _buildPopupMenuItem('Completed'),
+        ];
+      },
+    );
+  }
+
+  PopupMenuItem<String> _buildPopupMenuItem(String value) {
+    return PopupMenuItem(
+      value: value,
+      child: Row(
+        children: [
+          Icon(
+            selectedValue == value ? Icons.done_all : Icons.done,
+            color: Colors.black,
+          ),
+          SizedBox(width: 8),
+          Text(value),
+        ],
       ),
     );
   }
@@ -174,45 +156,48 @@ class _HomeScreenState extends State<HomeScreen>
       selectedValue = status;
     });
 
-    final url = NetworkInfo.url2 +
-        "/visitor.php?status=$status"; // Replace with your actual URL
+    final url = '${NetworkInfo.url2}/visitor.php?status=$status';
     final response = await http.get(Uri.parse(url));
-    print(response.body);
+
     if (response.statusCode == 200) {
-      List<Map<String, dynamic>> data = json
-          .decode(response.body)
-          .cast<Map<String, dynamic>>(); // Ensure data is correctly typed
+      List<Map<String, dynamic>> data =
+          List<Map<String, dynamic>>.from(json.decode(response.body));
       setState(() {
         items = data;
         isLoading = false;
       });
     } else {
       setState(() {
-        items.clear(); // Clear previous items
+        items.clear();
         isLoading = false;
       });
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Error'),
-          content: Text('Visitors not found'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+      _showErrorDialog('Visitors not found');
     }
   }
 
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void navigateToVisitorUpdateScreen(Map<String, dynamic> item) {
+    print(item);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VisitorsUpdateScreen(item, role, community_name),
-      ),
+          builder: (context) =>
+              VisitorsUpdateScreen(item, widget.role, widget.communityName)),
     );
   }
 }

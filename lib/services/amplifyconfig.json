@@ -1,0 +1,20 @@
+{
+  //  "api": {
+  //    "plugins": {
+  //      "awsAPIPlugin": {
+  //        "yourApiName": {
+  //          "endpoint": "https://your-api-endpoint",
+  //          "region": "ap-south-1ap-south-1"
+  //        }
+  //      }
+  //    }
+  //  },
+  "storage": {
+    "plugins": {
+      "awsS3StoragePlugin": {
+        "bucket": "ven-allowme-bucket",
+        "region": "ap-south-1"
+      }
+    }
+  }
+}

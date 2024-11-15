@@ -36,7 +36,9 @@ class _ProfileState extends State<Profile> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('SuperAdmin')),
+        appBar: AppBar(
+          title: Text('SuperAdmin'),
+        ),
         body: Container(
           padding: EdgeInsets.all(16.0),
           child: Column(

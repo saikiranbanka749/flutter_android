@@ -236,7 +236,9 @@ class _VisitorsUpdateScreenState extends State<VisitorsUpdateScreen> {
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       SecurityGuardHomeScreen(
-                                                          role, community_name),
+                                                          role,
+                                                          community_name,
+                                                          ""),
                                                 ));
                                           },
                                           child: Text('Close'))
@@ -249,6 +251,14 @@ class _VisitorsUpdateScreenState extends State<VisitorsUpdateScreen> {
                         ],
                       ),
                     ),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Back'),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -348,7 +358,8 @@ class _VisitorsUpdateScreenState extends State<VisitorsUpdateScreen> {
                     ),
                     onPressed: () async {
                       final whatsappUrl = Uri.parse(
-                          "https://wa.me/?text=Your OTP is: ${items['otp']}");
+                          "whatsapp://send?text=${Uri.encodeComponent("Your OTP is: ${items['otp']}")}");
+
                       if (await canLaunchUrl(whatsappUrl)) {
                         await launchUrl(whatsappUrl);
                       } else {
@@ -394,4 +405,6 @@ class _VisitorsUpdateScreenState extends State<VisitorsUpdateScreen> {
       duration: Duration(seconds: 1),
     );
   }
+
+  Future<void> fetchImage() async {}
 }

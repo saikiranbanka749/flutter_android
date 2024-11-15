@@ -61,7 +61,7 @@ class OwnerHomeScreen extends StatelessWidget {
           children: [
             HomeScreens(role, phoneNumber, community_name),
             TenantsScreen(role, phoneNumber, community_name),
-            ProfileScreen(),
+            ProfileScreen(role, phoneNumber, community_name),
           ],
         ), // TabBarView
       ),

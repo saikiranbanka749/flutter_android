@@ -1,70 +1,61 @@
 import 'package:allow_me/Security_guard/ProfileScreen.dart';
 import 'package:allow_me/Security_guard/VisitorsScreen.dart';
 import 'package:allow_me/Security_guard/HomeScreen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Network/NetworkInfo.dart';
-
 class SecurityGuardHomeScreen extends StatefulWidget {
-  String role = "", community_name = "";
+  final String role;
+  final String phone;
+  final String communityName;
 
-  SecurityGuardHomeScreen(String role, community_name) {
-    this.role = role;
-    this.community_name = community_name;
-    print("thisis $community_name");
-  }
+  SecurityGuardHomeScreen(this.role, this.phone, this.communityName);
 
   @override
   State<SecurityGuardHomeScreen> createState() =>
-      SecurityGuardScreenState(role, community_name);
+      SecurityGuardScreenState(role, phone, communityName);
 }
 
 class SecurityGuardScreenState extends State<SecurityGuardHomeScreen> {
-  String text = '', community_name = '';
+  final String text;
+  final String phone;
+  final String communityName;
 
-  SecurityGuardScreenState(String text, String community_name) {
-    this.text = text;
-    this.community_name = community_name;
+  SecurityGuardScreenState(this.text, this.phone, this.communityName);
+
+  final List<Widget> screens = [];
+
+  @override
+  void initState() {
+    super.initState();
+    screens.addAll([
+      HomeScreen(text, communityName),
+      VisitorsScreen(communityName),
+      ProfileScreen(text, phone, communityName),
+    ]);
   }
-
-  final Screens = [VisitorsScreen(""), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {
-    print(text);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-              title: Text(text),
-              bottom: TabBar(
-                tabs: [
-                  Tab(
-                    icon: Icon(Icons.home),
-                    text: "Home",
-                  ),
-                  Tab(
-                    icon: Icon(Icons.list_rounded),
-                    text: "Add visitor",
-                  ),
-                  Tab(
-                    icon: Icon(Icons.person),
-                    text: "Profile",
-                  )
-                ],
-              ),
-              backgroundColor: Colors.blueAccent), // AppBar
+            title: Text(text),
+            bottom: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.home), text: "Home"),
+                Tab(icon: Icon(Icons.list_rounded), text: "Add Visitor"),
+                Tab(icon: Icon(Icons.person), text: "Profile"),
+              ],
+            ),
+            backgroundColor: Colors.blueAccent,
+          ),
           body: TabBarView(
-            children: [
-              HomeScreen(text, community_name),
-              VisitorsScreen(community_name),
-              ProfileScreen()
-            ],
-          ), // TabBarView
-        ), // Scaffold
+            children: screens,
+          ),
+        ),
       ),
     );
   }

@@ -23,6 +23,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   var items = [];
   bool isLoading = false;
   String phone_number = "", community_name = '';
+  String selectedValue = "All";
 
   _VisitorsScreenState(String phone_number, String community_name) {
     this.phone_number = phone_number;
@@ -32,6 +33,7 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   @override
   void initState() {
     fetchTodo("All", phone_number);
+    String selectedValue = "All";
     super.initState();
   }
 
@@ -46,9 +48,49 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
             PopupMenuButton<String>(
               onSelected: (value) => fetchTodo(value, phone_number),
               itemBuilder: (BuildContext ctx) => [
-                PopupMenuItem(value: 'All', child: Text('All')),
-                PopupMenuItem(value: 'Pending', child: Text('Pending')),
-                PopupMenuItem(value: 'Completed', child: Text('Completed')),
+                PopupMenuItem(
+                  value: 'All',
+                  child: Row(
+                    children: [
+                      Icon(
+                        selectedValue == 'All' ? Icons.done_all : Icons.done,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 8),
+                      Text('All'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'Pending',
+                  child: Row(
+                    children: [
+                      Icon(
+                        selectedValue == 'Pending'
+                            ? Icons.done_all
+                            : Icons.done,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 8),
+                      Text('Pending'),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'Completed',
+                  child: Row(
+                    children: [
+                      Icon(
+                        selectedValue == 'Completed'
+                            ? Icons.done_all
+                            : Icons.done,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 8),
+                      Text('Completed'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -81,33 +123,38 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
                 replacement: Center(
                   child: Text("Data not available"),
                 ),
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: items.length,
-                  separatorBuilder: (context, index) => Divider(
-                    color: Colors.black87,
-                  ),
-                  itemBuilder: (context, index) {
-                    final item = items[index] as Map<String, dynamic>;
-                    return GestureDetector(
-                      onTap: () {
-                        print(item['visitor_name']);
-                        print(items.runtimeType);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VisitorsUpdateScreen(
-                                item, 'tenant', community_name),
+                child: !isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : items.isEmpty
+                        ? Center(child: Text("Data not available"))
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: items.length,
+                            separatorBuilder: (context, index) => Divider(
+                              color: Colors.black87,
+                            ),
+                            itemBuilder: (context, index) {
+                              final item = items[index] as Map<String, dynamic>;
+                              return GestureDetector(
+                                onTap: () {
+                                  print(item['visitor_name']);
+                                  print(items.runtimeType);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          VisitorsUpdateScreen(
+                                              item, 'tenant', community_name),
+                                    ),
+                                  );
+                                },
+                                child: ListTile(
+                                  title: Text(item['visitor_name']),
+                                  subtitle: Text(item['status']),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                      child: ListTile(
-                        title: Text(item['visitor_name']),
-                        subtitle: Text(item['status']),
-                      ),
-                    );
-                  },
-                ),
               ),
             ),
           ],
@@ -117,30 +164,54 @@ class _VisitorsScreenState extends State<VisitorsScreen> {
   }
 
   Future<void> fetchTodo(String value, String phone_number) async {
+    setState(() {
+      isLoading = true;
+      selectedValue = value;
+    });
+
     print(phone_number);
     try {
       String url = NetworkInfo.url2 +
           "t_visitors.php?status=${value}&phone=${phone_number}";
       final uri = Uri.parse(url);
-      print("here $url");
+      print("Requesting URL: $url");
+
       final response = await http.get(uri);
-      print(response.statusCode);
-      print(response.body);
-      List data = json.decode(response.body);
+      print("Response Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
       if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+
         setState(() {
-          items = data;
+          if (decoded is Map<String, dynamic>) {
+            // Wrap Map in List if single record is returned
+            items = [decoded];
+          } else if (decoded is List) {
+            // Directly assign if response is already a List
+            items = List<Map<String, dynamic>>.from(decoded);
+          }
           isLoading = true;
-          print("is loading value is $isLoading");
         });
-      } else {
+      } else if (response.statusCode == 204) {
         setState(() {
-          items = data;
+          items = []; // Empty list if no content
           isLoading = false;
         });
+        print("No data found for the given filters.");
+      } else {
+        setState(() {
+          items = [];
+          isLoading = false;
+        });
+        print("Error: Unexpected response status ${response.statusCode}");
       }
     } catch (e) {
-      print(e);
+      print("Error fetching data: $e");
+      setState(() {
+        items = [];
+        isLoading = false;
+      });
     }
   }
 }

@@ -169,11 +169,11 @@ class LoginScreenTest extends StatelessWidget {
                     builder: (context) =>
                         TenantsHomeScreen("Tenant", phone, responseData[1])));
           } else if (text == "SecurityGaurd Login") {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SecurityGuardHomeScreen("Security", "")));
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (context) =>
+            //             SecurityGuardHomeScreen("Security", "")));
           }
         } else {
           createAlertDialogueBox(context, "Please enter valid userId/password");

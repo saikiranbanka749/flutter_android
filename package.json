@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@aws-amplify/storage": "^6.6.9",
+    "aws-amplify": "^6.6.5"
+  }
+}
